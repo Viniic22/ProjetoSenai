@@ -51,9 +51,9 @@ section{padding:96px 0}
 
 /* HERO */
 .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0}
-.hero-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 40%, rgba(31,111,235,.18) 0%, transparent 70%)}
-.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(13,17,23,.6),rgba(13,17,23,.85),var(--bg))}
+.hero-bg{position:absolute;inset:0;background-image:url('hero-bg.png');background-size:cover;background-position:center top;background-repeat:no-repeat}
+.hero-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 40%, rgba(10,15,30,.55) 0%, rgba(10,15,30,.75) 100%)}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(13,17,23,.45) 0%,rgba(13,17,23,.7) 60%,var(--bg) 100%)}
 .hero-content{position:relative;z-index:2}
 .hero h1{font-size:clamp(2.5rem,7vw,5rem);font-weight:900;line-height:1.1;margin-bottom:24px}
 .hero p.sub{color:var(--fg2);font-size:clamp(1rem,2vw,1.25rem);max-width:640px;margin:0 auto 40px}
@@ -127,9 +127,181 @@ footer p{font-family:var(--font-display);font-size:.85rem;color:var(--fg2)}
 .fade-up.visible{opacity:1;transform:translateY(0)}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 .float{animation:float 3s ease-in-out infinite}
+
+/* READING PROGRESS BAR */
+#read-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#1f6feb,#58a6ff,#79c0ff);width:0%;z-index:200;transition:width .1s linear;pointer-events:none}
+
+/* HERO GEARS */
+@keyframes spin-slow{to{transform:rotate(360deg)}}
+@keyframes spin-rev{to{transform:rotate(-360deg)}}
+.hero-gear{position:absolute;opacity:.06;font-size:var(--gs,6rem);animation:var(--ga,spin-slow) var(--gd,20s) linear infinite;user-select:none;line-height:1}
+
+/* COFFEE STEAM */
+@keyframes steam-rise{0%{opacity:0;transform:translateY(0) scaleX(1)}50%{opacity:.55;transform:translateY(-10px) scaleX(1.4)}100%{opacity:0;transform:translateY(-20px) scaleX(.7)}}
+.steam-wrap{position:relative;display:inline-block}
+.steam-wrap::before,.steam-wrap::after,.steam3{position:absolute;content:'';width:4px;height:10px;background:rgba(210,220,230,.65);border-radius:3px;top:-14px;animation:steam-rise 2s ease-in-out infinite}
+.steam-wrap::before{left:calc(50% - 10px);animation-delay:0s}
+.steam-wrap::after{left:50%;animation-delay:.45s}
+.steam3{left:calc(50% + 6px);animation-delay:.9s}
+
+/* PHASE DIFFICULTY BARS */
+.phase-progress{height:4px;border-radius:2px;margin-top:10px;background:rgba(255,255,255,.07);overflow:hidden}
+.phase-progress-fill{height:100%;border-radius:2px;width:0}
+.fade-up.visible .phase-progress-fill{animation:progress-grow .9s .3s ease-out forwards}
+@keyframes progress-grow{to{width:var(--pw,0%)}}
+.progress-easy{background:linear-gradient(90deg,#2ecc71,#27ae60);--pw:33%}
+.progress-medium{background:linear-gradient(90deg,#f39c12,#e67e22);--pw:66%}
+.progress-hard{background:linear-gradient(90deg,#e74c3c,#c0392b);--pw:100%}
+.phase-diff-label{font-size:.62rem;color:var(--fg2);margin-top:4px;font-family:var(--font-display);letter-spacing:.05em}
+
+/* TEAM CARD ANIMATED BORDER (conic-gradient) */
+@property --angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes rotate-border{to{--angle:360deg}}
+.team-card{isolation:isolate}
+.team-card::after{content:'';position:absolute;inset:-2px;border-radius:18px;background:conic-gradient(from var(--angle),#1f6feb 0%,#7c3aed 33%,#06b6d4 66%,#1f6feb 100%);z-index:-1;opacity:0;transition:opacity .3s}
+.team-card:hover::after{opacity:1;animation:rotate-border 3s linear infinite}
+
+/* STEPS CONNECTOR */
+.steps-wrapper{position:relative}
+.steps-connector{display:none}
+@media(min-width:700px){
+  .steps-connector{display:block;position:absolute;left:12px;top:32px;bottom:32px;width:2px;background:rgba(31,111,235,.12);z-index:0}
+  .steps-connector-fill{height:0%;width:100%;background:linear-gradient(to bottom,var(--primary),var(--primary-light));transition:height 1.4s ease-out}
+  .steps-connector.visible .steps-connector-fill{height:100%}
+  .step-card{padding-left:36px}
+  .step-num{left:4px}
+}
+
+/* BUTTON SHIMMER + RIPPLE */
+.btn-primary{position:relative;overflow:hidden}
+.btn-primary::before{content:'';position:absolute;top:0;left:-80%;width:55%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);animation:btn-shimmer 2.8s linear infinite;pointer-events:none}
+@keyframes btn-shimmer{to{left:130%}}
+.ripple-effect{position:absolute;border-radius:50%;background:rgba(255,255,255,.32);transform:scale(0);animation:ripple-out .65s linear;pointer-events:none}
+@keyframes ripple-out{to{transform:scale(5);opacity:0}}
+
+/* GALLERY PLACEHOLDERS */
+.gallery-ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;background:var(--card)}
+.gallery-ph-icon{font-size:2.8rem;opacity:.25;filter:grayscale(1)}
+.gallery-ph-line{width:40px;height:2px;background:linear-gradient(90deg,transparent,var(--primary),transparent);opacity:.4}
+.gallery-ph-label{font-family:var(--font-display);font-size:.6rem;letter-spacing:.18em;color:rgba(255,255,255,.22);text-align:center;text-transform:uppercase;line-height:1.6}
+
+/* GAME CSS ART */
+.game-art-wrap{width:100%;height:100%;background:#0a0f1e;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+
+/* ARCADE SVG PLACEHOLDER */
+.arcade-ph-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#0a1018,#101820)}
+
+/* LOADING SCREEN */
+#loader{position:fixed;inset:0;background:#0d1117;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .7s ease,visibility .7s ease}
+#loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.loader-logo{font-family:var(--font-display);font-size:2rem;font-weight:900;background:linear-gradient(135deg,#1f6feb,#58a6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:ld-pulse 1s ease-in-out infinite}
+@keyframes ld-pulse{0%,100%{opacity:.3}50%{opacity:1}}
+.loader-bar-wrap{width:180px;height:3px;background:rgba(31,111,235,.15);border-radius:2px;overflow:hidden}
+.loader-bar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--primary-light));border-radius:2px;animation:ld-fill 1.2s ease-out forwards}
+@keyframes ld-fill{to{width:100%}}
+.loader-sub{font-family:var(--font-display);font-size:.65rem;letter-spacing:.35em;color:var(--fg2);text-transform:uppercase}
+
+/* GLITCH EFFECT */
+@keyframes glitch{
+  0%,91%,100%{text-shadow:none;transform:none}
+  92%{text-shadow:-3px 0 #ff6b00;transform:translate(2px,0)}
+  93%{text-shadow:3px 0 #1e90ff;transform:translate(-2px,0)}
+  94%{text-shadow:-2px 0 #ff0000,2px 0 #00ffff;transform:none}
+  95%{text-shadow:none;transform:translate(1px,-1px)}
+  96%{text-shadow:2px 0 #ff6b00;transform:translate(-1px,0)}
+  97%,99%{text-shadow:none;transform:none}
+  98%{text-shadow:0 0 12px rgba(88,166,255,.6)}
+}
+.glitch-text{animation:glitch 5s 2s infinite;display:inline-block}
+
+/* BACK TO TOP */
+#back-top{position:fixed;bottom:28px;right:22px;width:44px;height:44px;border-radius:10px;background:var(--primary);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s,transform .2s,box-shadow .2s;z-index:90;box-shadow:0 4px 20px rgba(31,111,235,.4);font-weight:700}
+#back-top.show{opacity:1;visibility:visible}
+#back-top:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(31,111,235,.55)}
+
+/* STATS STRIP */
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:48px 0 0}
+@media(max-width:640px){.stats-strip{grid-template-columns:repeat(2,1fr)}.stat-item:nth-child(2){border-right:none}.stat-item:nth-child(3){border-top:1px solid var(--border)}.stat-item:nth-child(4){border-top:1px solid var(--border);border-right:none}}
+.stat-item{padding:28px 16px;text-align:center;border-right:1px solid var(--border);transition:background .3s;cursor:default}
+.stat-item:last-child{border-right:none}
+.stat-item:hover{background:rgba(31,111,235,.06)}
+.stat-num{font-family:var(--font-display);font-size:2.4rem;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--primary-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.stat-label{font-size:.72rem;color:var(--fg2);margin-top:8px;letter-spacing:.06em;text-transform:uppercase}
+
+/* ACTIVE NAV */
+.nav-links a{position:relative}
+.nav-links a.nav-active{color:var(--primary-light)}
+.nav-links a.nav-active::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:2px;background:var(--primary-light);border-radius:1px}
+
+/* CRT SCAN LINES */
+.crt-wrap{position:relative}
+.crt-wrap::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.1) 0px,rgba(0,0,0,.1) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2;border-radius:inherit}
+
+/* TEAM TOOLTIP */
+.team-tooltip{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%) translateY(4px);background:#0d1117;border:1px solid var(--border);color:var(--fg);font-size:.68rem;padding:6px 14px;border-radius:6px;white-space:nowrap;opacity:0;visibility:hidden;transition:opacity .2s,transform .2s;pointer-events:none;z-index:20;font-family:var(--font-display);letter-spacing:.06em}
+.team-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--border)}
+.team-card:hover .team-tooltip{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+
+/* ─── HERO 2-COLUNAS ─── */
+.hero-content{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;max-width:1100px;width:100%;padding:0 24px;text-align:left}
+.hero h1{margin-bottom:20px}
+.hero p.sub{margin:0 0 36px;max-width:480px}
+.hero-art{position:relative;display:flex;align-items:center;justify-content:center}
+.hero-screen{background:#0d1117;border:2px solid rgba(31,111,235,.4);border-radius:14px;overflow:hidden;box-shadow:0 0 40px rgba(31,111,235,.2),0 0 80px rgba(31,111,235,.07);position:relative;width:100%}
+.hero-screen::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(31,111,235,.05) 0%,transparent 60%);pointer-events:none;z-index:1}
+.hero-screen-top{height:28px;background:#161b22;border-bottom:1px solid rgba(31,111,235,.2);display:flex;align-items:center;padding:0 12px;gap:6px}
+.hero-screen-dot{width:8px;height:8px;border-radius:50%}
+@media(max-width:860px){
+  .hero-content{grid-template-columns:1fr;text-align:center;gap:32px}
+  .hero p.sub{max-width:560px;margin:0 auto 36px}
+  .hero-art{display:none}
+}
+
+/* ─── SECTION HEADER NUMBERS ─── */
+.section-header{position:relative;overflow:visible}
+.section-header::before{content:attr(data-num);position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-family:var(--font-display);font-size:8rem;font-weight:900;color:rgba(31,111,235,.05);line-height:1;pointer-events:none;letter-spacing:-.06em;white-space:nowrap;z-index:0}
+.section-header > *{position:relative;z-index:1}
+@media(max-width:600px){.section-header::before{font-size:5rem}}
+
+/* ─── GALLERY FEATURED ─── */
+.gallery-grid{display:grid;grid-template-columns:1.65fr 1fr;grid-template-rows:repeat(3,172px);gap:14px}
+.gallery-item{aspect-ratio:unset;height:auto}
+.gallery-item:first-child{grid-row:1/4}
+@media(max-width:680px){
+  .gallery-grid{grid-template-columns:1fr;grid-template-rows:none}
+  .gallery-item{aspect-ratio:1;height:auto}
+  .gallery-item:first-child{grid-row:auto}
+}
+
+/* ─── FOOTER EXPANDIDO ─── */
+footer{border-top:1px solid var(--border);padding:0}
+.footer-top{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:48px;padding:56px 0 48px;border-bottom:1px solid var(--border)}
+@media(max-width:800px){.footer-top{grid-template-columns:1fr 1fr;gap:32px}}
+@media(max-width:520px){.footer-top{grid-template-columns:1fr}}
+.footer-brand-logo{font-family:var(--font-display);font-size:1.1rem;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--primary-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px}
+.footer-brand-desc{font-size:.85rem;color:var(--fg2);line-height:1.7;max-width:280px}
+.footer-col-title{font-family:var(--font-display);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--primary-light);margin-bottom:16px}
+.footer-nav-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.footer-nav-list a{font-size:.85rem;color:var(--fg2);transition:color .2s}
+.footer-nav-list a:hover{color:var(--fg)}
+.footer-social-links{display:flex;flex-direction:column;gap:10px}
+.footer-social-link{display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--fg2);transition:color .2s}
+.footer-social-link:hover{color:var(--primary-light)}
+.footer-social-icon{width:32px;height:32px;border-radius:7px;background:rgba(31,111,235,.1);border:1px solid rgba(31,111,235,.2);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;padding:20px 0;flex-wrap:wrap;gap:8px}
+.footer-bottom p{font-family:var(--font-display);font-size:.75rem;color:var(--fg2)}
+.footer-tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-display);font-size:.65rem;letter-spacing:.12em;color:var(--fg2);background:rgba(31,111,235,.08);border:1px solid rgba(31,111,235,.15);padding:4px 10px;border-radius:99px}
 </style>
 </head>
 <body>
+<div id="read-progress"></div>
+
+<!-- LOADING SCREEN -->
+<div id="loader">
+  <div class="loader-logo">INDUSTRIAL KONG</div>
+  <div class="loader-bar-wrap"><div class="loader-bar-fill"></div></div>
+  <div class="loader-sub">Carregando...</div>
+</div>
 
 <!-- NAV -->
 <nav id="navbar">
@@ -156,12 +328,85 @@ footer p{font-family:var(--font-display);font-size:.85rem;color:var(--fg2)}
 
 <!-- HERO -->
 <section id="home" class="hero">
-<div class="hero-bg"></div>
+<div class="hero-bg">
+  <div class="hero-gear" style="--gs:9rem;top:8%;left:4%;--gd:28s">⚙</div>
+  <div class="hero-gear" style="--gs:4.5rem;top:65%;left:12%;--gd:16s;--ga:spin-rev">⚙</div>
+  <div class="hero-gear" style="--gs:13rem;top:15%;right:6%;--gd:38s">⚙</div>
+  <div class="hero-gear" style="--gs:5.5rem;bottom:18%;right:18%;--gd:22s;--ga:spin-rev">⚙</div>
+  <div class="hero-gear" style="--gs:3rem;bottom:35%;left:32%;--gd:12s">⚙</div>
+  <div class="hero-gear" style="--gs:7rem;top:45%;left:2%;--gd:20s;--ga:spin-rev">⚙</div>
+</div>
 <div class="hero-content">
-  <p class="label">Mundo SENAI — Projeto Integrador</p>
-  <h1><span class="text-gradient">INDUSTRIAL</span><br>KONG</h1>
-  <p class="sub">Um jogo de plataforma inspirado no clássico Donkey Kong, ambientado no universo industrial — rodando em um fliperama artesanal de madeira feito à mão no SENAI.</p>
-  <a href="#sobre" class="btn-primary">EXPLORAR PROJETO</a>
+  <div>
+    <p class="label">Mundo SENAI — Projeto Integrador</p>
+    <h1><span class="text-gradient">INDUSTRIAL</span><br><span class="glitch-text">KONG</span></h1>
+    <p class="sub">Um jogo de plataforma inspirado no clássico Donkey Kong, ambientado no universo industrial — rodando em um fliperama artesanal de madeira feito à mão no SENAI.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <a href="#sobre" class="btn-primary">EXPLORAR PROJETO</a>
+      <a href="#jogo" style="display:inline-flex;align-items:center;gap:8px;color:var(--fg2);font-family:var(--font-display);font-size:.82rem;letter-spacing:.06em;padding:14px 24px;border:1px solid var(--border);border-radius:8px;transition:color .2s,border-color .2s" onmouseover="this.style.color='var(--fg)';this.style.borderColor='rgba(88,166,255,.4)'" onmouseout="this.style.color='var(--fg2)';this.style.borderColor='var(--border)'">VER O JOGO ▶</a>
+    </div>
+  </div>
+  <div class="hero-art">
+    <div class="hero-screen">
+      <div class="hero-screen-top">
+        <div class="hero-screen-dot" style="background:#ff5f57"></div>
+        <div class="hero-screen-dot" style="background:#febc2e"></div>
+        <div class="hero-screen-dot" style="background:#28c840"></div>
+        <span style="font-family:var(--font-display);font-size:.6rem;color:var(--fg2);margin-left:auto;letter-spacing:.1em">INDUSTRIAL KONG v1.0</span>
+      </div>
+      <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+        <rect width="320" height="200" fill="#0a0f1e"/>
+        <text x="8" y="105" font-size="38" fill="#ff6b00" opacity=".1" font-family="sans-serif">⚙</text>
+        <text x="260" y="65" font-size="28" fill="#1e90ff" opacity=".08" font-family="sans-serif">⚙</text>
+        <rect x="0" y="182" width="320" height="18" fill="#1a2332"/>
+        <rect x="0" y="180" width="320" height="2" fill="#ff6b00" opacity=".55"/>
+        <rect x="0" y="122" width="210" height="10" fill="#1a2332"/>
+        <rect x="0" y="120" width="210" height="2" fill="#ff6b00" opacity=".4"/>
+        <rect x="90" y="62" width="230" height="10" fill="#1a2332"/>
+        <rect x="90" y="60" width="230" height="2" fill="#ff6b00" opacity=".4"/>
+        <rect x="168" y="132" width="3" height="48" fill="#ffd700" opacity=".75"/>
+        <rect x="181" y="132" width="3" height="48" fill="#ffd700" opacity=".75"/>
+        <rect x="171" y="136" width="10" height="2" fill="#ffd700" opacity=".4"/>
+        <rect x="171" y="144" width="10" height="2" fill="#ffd700" opacity=".4"/>
+        <rect x="171" y="152" width="10" height="2" fill="#ffd700" opacity=".4"/>
+        <rect x="171" y="160" width="10" height="2" fill="#ffd700" opacity=".4"/>
+        <rect x="171" y="168" width="10" height="2" fill="#ffd700" opacity=".4"/>
+        <rect x="272" y="72" width="3" height="48" fill="#ffd700" opacity=".75"/>
+        <rect x="285" y="72" width="3" height="48" fill="#ffd700" opacity=".75"/>
+        <rect x="275" y="76" width="10" height="2" fill="#ffd700" opacity=".4"/>
+        <rect x="275" y="84" width="10" height="2" fill="#ffd700" opacity=".4"/>
+        <rect x="275" y="92" width="10" height="2" fill="#ffd700" opacity=".4"/>
+        <rect x="275" y="100" width="10" height="2" fill="#ffd700" opacity=".4"/>
+        <rect x="275" y="108" width="10" height="2" fill="#ffd700" opacity=".4"/>
+        <rect x="169" y="100" width="16" height="5" rx="1" fill="#ffd700"/>
+        <rect x="171" y="104" width="12" height="9" rx="1" fill="#f4a460"/>
+        <rect x="169" y="113" width="16" height="11" fill="#1e90ff"/>
+        <rect x="164" y="114" width="6" height="3" rx="1" fill="#f4a460"/>
+        <rect x="183" y="118" width="6" height="3" rx="1" fill="#f4a460"/>
+        <rect x="170" y="124" width="6" height="7" fill="#0d3b7a"/>
+        <rect x="177" y="124" width="6" height="7" fill="#0d3b7a"/>
+        <rect x="158" y="113" width="8" height="3" rx="1" fill="#c0c0c0" transform="rotate(-40,162,115)"/>
+        <rect x="52" y="106" width="22" height="16" rx="4" fill="#8B4513"/>
+        <rect x="55" y="109" width="16" height="1" fill="#6b3410"/>
+        <rect x="55" y="114" width="16" height="1" fill="#6b3410"/>
+        <circle cx="63" cy="114" r="4" fill="none" stroke="#6b3410" stroke-width="1.5"/>
+        <rect x="228" y="20" width="36" height="28" rx="5" fill="#606060"/>
+        <rect x="233" y="26" width="26" height="18" rx="2" fill="#a0a8b0"/>
+        <rect x="248" y="6" width="24" height="20" rx="3" fill="#4a4a4a"/>
+        <rect x="253" y="11" width="5" height="5" rx="1" fill="#cc0000"/>
+        <rect x="263" y="11" width="5" height="5" rx="1" fill="#cc0000"/>
+        <rect x="222" y="24" width="20" height="8" rx="3" fill="#606060"/>
+        <rect x="274" y="24" width="20" height="8" rx="3" fill="#606060"/>
+        <rect x="240" y="50" width="18" height="13" rx="3" fill="#8B4513"/>
+        <rect x="242" y="53" width="14" height="1" fill="#6b3410"/>
+        <rect x="242" y="57" width="14" height="1" fill="#6b3410"/>
+        <rect x="0" y="0" width="320" height="20" fill="rgba(0,0,0,.65)"/>
+        <text x="8" y="13" font-size="7.5" fill="#ffd700" font-family="monospace" font-weight="bold">PONTOS: 01250</text>
+        <text x="130" y="13" font-size="7.5" fill="#ffffff" font-family="monospace">TURNO: 2</text>
+        <text x="240" y="13" font-size="7.5" fill="#ff6b00" font-family="monospace">VIDAS: ⛑⛑⛑</text>
+      </svg>
+    </div>
+  </div>
 </div>
 <div class="chevron">▼</div>
 </section>
@@ -170,7 +415,7 @@ footer p{font-family:var(--font-display);font-size:.85rem;color:var(--fg2)}
 <section id="sobre">
 <div class="container">
   <div class="section-divider"></div>
-  <div style="text-align:center;margin-bottom:48px" class="fade-up">
+  <div style="text-align:center;margin-bottom:48px" class="fade-up section-header" data-num="01">
     <p class="label">Sobre o Projeto</p>
     <h2 class="section-title">O Conceito</h2>
     <p style="color:var(--fg2);max-width:720px;margin:0 auto;font-size:1.05rem;line-height:1.8">
@@ -180,6 +425,13 @@ footer p{font-family:var(--font-display);font-size:.85rem;color:var(--fg2)}
       do SENAI e a indústria brasileira.
     </p>
   </div>
+  <div class="stats-strip fade-up">
+    <div class="stat-item"><div class="stat-num" data-target="3" data-suffix="">0</div><div class="stat-label">Fases</div></div>
+    <div class="stat-item"><div class="stat-num" data-target="6" data-suffix="">0</div><div class="stat-label">Desenvolvedores</div></div>
+    <div class="stat-item"><div class="stat-num" data-target="1" data-suffix="">0</div><div class="stat-label">Fliperama</div></div>
+    <div class="stat-item"><div class="stat-num" data-target="100" data-suffix="%">0</div><div class="stat-label">Artesanal</div></div>
+  </div>
+  <div style="margin-top:48px"></div>
   <div class="features-grid">
     <div class="card steel-border feature-card fade-up">
       <div class="feature-icon">🎮</div>
@@ -203,10 +455,12 @@ footer p{font-family:var(--font-display);font-size:.85rem;color:var(--fg2)}
 <!-- DESENVOLVIMENTO -->
 <section id="desenvolvimento" class="industrial-bg">
 <div class="container">
-  <div style="text-align:center;margin-bottom:48px" class="fade-up">
+  <div style="text-align:center;margin-bottom:48px" class="fade-up section-header" data-num="02">
     <p class="label">Processo</p>
     <h2 class="section-title">Como Foi Desenvolvido</h2>
   </div>
+  <div class="steps-wrapper">
+  <div class="steps-connector" id="stepsConnector"><div class="steps-connector-fill"></div></div>
   <div class="steps-grid">
     <div class="step-card steel-border fade-up"><span class="step-num">1</span>
       <div class="step-icon">💻</div><h3 style="margin-bottom:8px">Programação</h3>
@@ -225,6 +479,7 @@ footer p{font-family:var(--font-display);font-size:.85rem;color:var(--fg2)}
       <p style="font-size:.85rem;color:var(--fg2);line-height:1.7">O jogo foi integrado a um fliperama artesanal de madeira com botões e joystick, criando a experiência arcade completa.</p>
     </div>
   </div>
+  </div>
 </div>
 </section>
 
@@ -232,34 +487,120 @@ footer p{font-family:var(--font-display);font-size:.85rem;color:var(--fg2)}
 <section id="jogo">
 <div class="container">
   <div class="section-divider"></div>
-  <div style="text-align:center;margin-bottom:48px" class="fade-up">
+  <div style="text-align:center;margin-bottom:48px" class="fade-up section-header" data-num="03">
     <p class="label">Gameplay</p>
     <h2 class="section-title">O Jogo</h2>
   </div>
   <div class="game-layout">
-    <div class="fade-up" style="background:var(--card);border-radius:12px;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);overflow:hidden">
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHOlZv7N7lVBykAUfoqV5ydL3KJDVXD5nNZg&s" style="width:100%;height:100%;object-fit:cover">
+    <div class="fade-up crt-wrap" style="background:var(--card);border-radius:12px;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);overflow:hidden">
+      <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+        <!-- Background -->
+        <rect width="320" height="200" fill="#0a0f1e"/>
+        <!-- Background gears (decorative) -->
+        <text x="8" y="105" font-size="38" fill="#ff6b00" opacity=".12" font-family="sans-serif">⚙</text>
+        <text x="260" y="65" font-size="28" fill="#1e90ff" opacity=".1" font-family="sans-serif">⚙</text>
+        <!-- Floor 1 (bottom) -->
+        <rect x="0" y="182" width="320" height="18" fill="#1a2332"/>
+        <rect x="0" y="180" width="320" height="2" fill="#ff6b00" opacity=".55"/>
+        <!-- Floor 2 -->
+        <rect x="0" y="122" width="210" height="10" fill="#1a2332"/>
+        <rect x="0" y="120" width="210" height="2" fill="#ff6b00" opacity=".4"/>
+        <!-- Floor 3 (top platform) -->
+        <rect x="90" y="62" width="230" height="10" fill="#1a2332"/>
+        <rect x="90" y="60" width="230" height="2" fill="#ff6b00" opacity=".4"/>
+        <!-- Ladder 1 (floor1 to floor2) -->
+        <rect x="168" y="132" width="3" height="48" fill="#ffd700" opacity=".75"/>
+        <rect x="181" y="132" width="3" height="48" fill="#ffd700" opacity=".75"/>
+        <rect x="171" y="136" width="10" height="2" fill="#ffd700" opacity=".45"/>
+        <rect x="171" y="144" width="10" height="2" fill="#ffd700" opacity=".45"/>
+        <rect x="171" y="152" width="10" height="2" fill="#ffd700" opacity=".45"/>
+        <rect x="171" y="160" width="10" height="2" fill="#ffd700" opacity=".45"/>
+        <rect x="171" y="168" width="10" height="2" fill="#ffd700" opacity=".45"/>
+        <!-- Ladder 2 (floor2 to floor3) -->
+        <rect x="272" y="72" width="3" height="48" fill="#ffd700" opacity=".75"/>
+        <rect x="285" y="72" width="3" height="48" fill="#ffd700" opacity=".75"/>
+        <rect x="275" y="76" width="10" height="2" fill="#ffd700" opacity=".45"/>
+        <rect x="275" y="84" width="10" height="2" fill="#ffd700" opacity=".45"/>
+        <rect x="275" y="92" width="10" height="2" fill="#ffd700" opacity=".45"/>
+        <rect x="275" y="100" width="10" height="2" fill="#ffd700" opacity=".45"/>
+        <rect x="275" y="108" width="10" height="2" fill="#ffd700" opacity=".45"/>
+        <!-- Character on ladder (pixel art) -->
+        <!-- Helmet (yellow) -->
+        <rect x="169" y="100" width="16" height="5" rx="1" fill="#ffd700"/>
+        <!-- Head -->
+        <rect x="171" y="104" width="12" height="9" rx="1" fill="#f4a460"/>
+        <!-- Body (blue SENAI uniform) -->
+        <rect x="169" y="113" width="16" height="11" fill="#1e90ff"/>
+        <!-- Arms gripping ladder -->
+        <rect x="164" y="114" width="6" height="3" rx="1" fill="#f4a460"/>
+        <rect x="183" y="118" width="6" height="3" rx="1" fill="#f4a460"/>
+        <!-- Legs -->
+        <rect x="170" y="124" width="6" height="7" fill="#0d3b7a"/>
+        <rect x="177" y="124" width="6" height="7" fill="#0d3b7a"/>
+        <!-- Wrench -->
+        <rect x="158" y="113" width="8" height="3" rx="1" fill="#c0c0c0" transform="rotate(-40,162,115)"/>
+        <!-- Barrel rolling (orange-brown) -->
+        <rect x="52" y="106" width="22" height="16" rx="4" fill="#8B4513"/>
+        <rect x="55" y="109" width="16" height="1" fill="#6b3410"/>
+        <rect x="55" y="114" width="16" height="1" fill="#6b3410"/>
+        <circle cx="63" cy="114" r="4" fill="none" stroke="#6b3410" stroke-width="1.5"/>
+        <!-- Boss gorilla (top right) -->
+        <!-- Body (metal grey) -->
+        <rect x="228" y="20" width="36" height="30" rx="5" fill="#5a5a5a"/>
+        <!-- Chrome chest plate -->
+        <rect x="233" y="26" width="26" height="20" rx="3" fill="#a0a8b0"/>
+        <rect x="236" y="29" width="20" height="14" rx="2" fill="#c8d0d8"/>
+        <!-- Head -->
+        <rect x="234" y="6" width="28" height="20" rx="4" fill="#4a4a4a"/>
+        <!-- Eyes (red glow) -->
+        <rect x="238" y="11" width="6" height="6" rx="1" fill="#cc0000"/>
+        <rect x="252" y="11" width="6" height="6" rx="1" fill="#cc0000"/>
+        <rect x="239" y="12" width="4" height="4" rx="1" fill="#ff4040"/>
+        <rect x="253" y="12" width="4" height="4" rx="1" fill="#ff4040"/>
+        <!-- Arms -->
+        <rect x="200" y="24" width="28" height="10" rx="4" fill="#5a5a5a"/>
+        <rect x="264" y="24" width="28" height="10" rx="4" fill="#5a5a5a"/>
+        <!-- Barrel thrown from boss -->
+        <rect x="204" y="42" width="18" height="13" rx="3" fill="#8B4513"/>
+        <rect x="207" y="45" width="12" height="1" fill="#6b3410"/>
+        <rect x="207" y="49" width="12" height="1" fill="#6b3410"/>
+        <!-- Sparks (orange) -->
+        <circle cx="40" cy="120" r="3" fill="#ff6b00" opacity=".8"/>
+        <circle cx="46" cy="116" r="2" fill="#ff9500" opacity=".6"/>
+        <circle cx="36" cy="115" r="2" fill="#ffd700" opacity=".7"/>
+        <!-- HUD -->
+        <rect x="0" y="0" width="320" height="22" fill="rgba(0,0,0,.55)"/>
+        <text x="8" y="14" font-size="8" fill="#ffd700" font-family="monospace" font-weight="bold">PONTOS: 01250</text>
+        <text x="130" y="14" font-size="8" fill="#ffffff" font-family="monospace">TURNO: 2</text>
+        <text x="230" y="14" font-size="8" fill="#ff6b00" font-family="monospace">VIDAS: ⛑⛑⛑</text>
+      </svg>
     </div>
     <div>
       <div class="card steel-border phase-card fade-up" style="margin-bottom:16px">
         <span class="phase-num">1</span>
-        <div><div style="display:flex;align-items:center;gap:12px;margin-bottom:4px"><h3 style="font-size:.95rem">Chão de Fábrica</h3><span class="phase-diff">Fácil</span></div>
-        <p style="font-size:.85rem;color:var(--fg2)">Introdução às mecânicas básicas. Plataformas fixas, poucos obstáculos e bastante café disponível.</p></div>
+        <div style="flex:1"><div style="display:flex;align-items:center;gap:12px;margin-bottom:4px"><h3 style="font-size:.95rem">Chão de Fábrica</h3><span class="phase-diff">Fácil</span></div>
+        <p style="font-size:.85rem;color:var(--fg2)">Introdução às mecânicas básicas. Plataformas fixas, poucos obstáculos e bastante café disponível.</p>
+        <div class="phase-progress"><div class="phase-progress-fill progress-easy"></div></div>
+        <p class="phase-diff-label">Dificuldade — 33%</p></div>
       </div>
       <div class="card steel-border phase-card fade-up" style="margin-bottom:16px">
         <span class="phase-num">2</span>
-        <div><div style="display:flex;align-items:center;gap:12px;margin-bottom:4px"><h3 style="font-size:.95rem">Linha de Montagem</h3><span class="phase-diff">Médio</span></div>
-        <p style="font-size:.85rem;color:var(--fg2)">Esteiras rolantes, engrenagens giratórias e menos itens de café. Timing preciso é essencial.</p></div>
+        <div style="flex:1"><div style="display:flex;align-items:center;gap:12px;margin-bottom:4px"><h3 style="font-size:.95rem">Linha de Montagem</h3><span class="phase-diff">Médio</span></div>
+        <p style="font-size:.85rem;color:var(--fg2)">Esteiras rolantes, engrenagens giratórias e menos itens de café. Timing preciso é essencial.</p>
+        <div class="phase-progress"><div class="phase-progress-fill progress-medium"></div></div>
+        <p class="phase-diff-label">Dificuldade — 66%</p></div>
       </div>
       <div class="card steel-border phase-card fade-up">
         <span class="phase-num">3</span>
-        <div><div style="display:flex;align-items:center;gap:12px;margin-bottom:4px"><h3 style="font-size:.95rem">Núcleo Industrial</h3><span class="phase-diff">Difícil</span></div>
-        <p style="font-size:.85rem;color:var(--fg2)">A fase final. Plataformas que desmoronam, obstáculos rápidos e café escasso. Sobreviva até o topo!</p></div>
+        <div style="flex:1"><div style="display:flex;align-items:center;gap:12px;margin-bottom:4px"><h3 style="font-size:.95rem">Núcleo Industrial</h3><span class="phase-diff">Difícil</span></div>
+        <p style="font-size:.85rem;color:var(--fg2)">A fase final. Plataformas que desmoronam, obstáculos rápidos e café escasso. Sobreviva até o topo!</p>
+        <div class="phase-progress"><div class="phase-progress-fill progress-hard"></div></div>
+        <p class="phase-diff-label">Dificuldade — 100%</p></div>
       </div>
     </div>
   </div>
   <div class="card steel-border coffee-box fade-up">
-    <div class="coffee-icon float">☕</div>
+    <div class="coffee-icon float"><div class="steam-wrap">☕<span class="steam3"></span></div></div>
     <div style="flex:1;min-width:240px">
       <h3 style="font-size:1.1rem;margin-bottom:8px">Sistema de Energia ☕</h3>
       <p style="font-size:.9rem;color:var(--fg2);line-height:1.7">O café é o combustível do trabalhador! Cada xícara coletada restaura parte da barra de energia do jogador. Sem energia, o personagem fica lento e vulnerável. Nas fases avançadas, o café fica cada vez mais raro — gerencie seus recursos com sabedoria.</p>
@@ -271,7 +612,7 @@ footer p{font-family:var(--font-display);font-size:.85rem;color:var(--fg2)}
 <!-- FLIPERAMA -->
 <section id="fliperama" class="industrial-bg">
 <div class="container">
-  <div style="text-align:center;margin-bottom:48px" class="fade-up">
+  <div style="text-align:center;margin-bottom:48px" class="fade-up section-header" data-num="04">
     <p class="label">Fabricação</p>
     <h2 class="section-title">Fliperama Artesanal</h2>
   </div>
@@ -286,7 +627,110 @@ footer p{font-family:var(--font-display);font-size:.85rem;color:var(--fg2)}
       <p style="color:var(--fg2);font-size:.9rem;line-height:1.7">A caixa do fliperama foi construída com madeira, incluindo o painel de controles com joystick e botões. O monitor e a eletrônica foram integrados para rodar o jogo Industrial Kong em uma experiência arcade autêntica.</p>
     </div>
     <div class="fade-up" style="background:var(--card);border-radius:12px;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);overflow:hidden">
-      <img src="https://cdn.awsli.com.br/800x800/544/544103/produto/26069553/4d84ca0446.jpg" style="width:100%;height:100%;object-fit:cover">
+      <svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;max-height:420px">
+        <defs>
+          <linearGradient id="woodGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#2a1a0c"/>
+            <stop offset="30%" stop-color="#3d2510"/>
+            <stop offset="70%" stop-color="#3a2210"/>
+            <stop offset="100%" stop-color="#251508"/>
+          </linearGradient>
+          <linearGradient id="woodLight" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#4a3018"/>
+            <stop offset="50%" stop-color="#5a3c20"/>
+            <stop offset="100%" stop-color="#3d2812"/>
+          </linearGradient>
+          <linearGradient id="screenGlow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1e90ff" stop-opacity=".35"/>
+            <stop offset="100%" stop-color="#0a1830" stop-opacity=".05"/>
+          </linearGradient>
+          <filter id="neonBlue">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Background -->
+        <rect width="200" height="280" fill="#080c12"/>
+        <!-- Cabinet top bezel (angled) -->
+        <path d="M20,55 L8,18 L192,18 L180,55 Z" fill="url(#woodGrad)" stroke="#5a3c20" stroke-width="1.5"/>
+        <!-- Top highlight -->
+        <path d="M20,55 L8,18 L192,18" fill="none" stroke="#6a4c28" stroke-width="1"/>
+        <!-- Cabinet body -->
+        <rect x="18" y="55" width="164" height="192" rx="6" fill="url(#woodGrad)" stroke="#4a3018" stroke-width="1.5"/>
+        <!-- Side panel left wood grain lines -->
+        <line x1="18" y1="70" x2="18" y2="220" stroke="#4a3018" stroke-width=".5" opacity=".5"/>
+        <line x1="22" y1="70" x2="22" y2="220" stroke="#5a3c20" stroke-width=".5" opacity=".3"/>
+        <!-- Side panel right -->
+        <line x1="182" y1="70" x2="182" y2="220" stroke="#4a3018" stroke-width=".5" opacity=".5"/>
+        <!-- Screen bezel -->
+        <rect x="32" y="68" width="136" height="100" rx="4" fill="#0d1520" stroke="#1e90ff" stroke-width="1" opacity=".7" filter="url(#neonBlue)"/>
+        <!-- Screen inner -->
+        <rect x="36" y="72" width="128" height="92" rx="2" fill="#050d1a"/>
+        <!-- Screen content (game scene pixel art) -->
+        <rect x="36" y="72" width="128" height="92" fill="url(#screenGlow)"/>
+        <!-- Game floor -->
+        <rect x="36" y="154" width="128" height="10" fill="#1a2332"/>
+        <rect x="36" y="152" width="128" height="2" fill="#ff6b00" opacity=".5"/>
+        <!-- Game platform -->
+        <rect x="36" y="122" width="80" height="6" fill="#1a2332"/>
+        <rect x="36" y="120" width="80" height="2" fill="#ff6b00" opacity=".35"/>
+        <!-- Game ladder -->
+        <rect x="100" y="128" width="2" height="24" fill="#ffd700" opacity=".7"/>
+        <rect x="108" y="128" width="2" height="24" fill="#ffd700" opacity=".7"/>
+        <rect x="102" y="132" width="6" height="1" fill="#ffd700" opacity=".4"/>
+        <rect x="102" y="138" width="6" height="1" fill="#ffd700" opacity=".4"/>
+        <rect x="102" y="144" width="6" height="1" fill="#ffd700" opacity=".4"/>
+        <!-- Pixel character -->
+        <rect x="58" y="109" width="10" height="4" rx="1" fill="#ffd700"/>
+        <rect x="59" y="113" width="8" height="7" fill="#1e90ff"/>
+        <rect x="59" y="120" width="4" height="5" fill="#0d3b7a"/>
+        <rect x="63" y="120" width="4" height="5" fill="#0d3b7a"/>
+        <!-- Boss gorilla (tiny) -->
+        <rect x="148" y="78" width="14" height="12" rx="2" fill="#555"/>
+        <rect x="151" y="82" width="8" height="7" rx="1" fill="#999"/>
+        <rect x="150" y="74" width="12" height="8" rx="2" fill="#484848"/>
+        <rect x="152" y="76" width="3" height="3" rx="1" fill="#ff0000"/>
+        <rect x="157" y="76" width="3" height="3" rx="1" fill="#ff0000"/>
+        <!-- HUD on screen -->
+        <rect x="36" y="72" width="128" height="12" fill="rgba(0,0,0,.6)"/>
+        <text x="40" y="81" font-size="5" fill="#ffd700" font-family="monospace">PONTOS:750</text>
+        <text x="108" y="81" font-size="5" fill="#fff" font-family="monospace">TURNO:1</text>
+        <!-- Neon side strips -->
+        <rect x="18" y="68" width="3" height="100" fill="#1e90ff" opacity=".25" filter="url(#neonBlue)"/>
+        <rect x="179" y="68" width="3" height="100" fill="#1e90ff" opacity=".25" filter="url(#neonBlue)"/>
+        <!-- Control panel -->
+        <rect x="22" y="184" width="156" height="42" rx="4" fill="url(#woodLight)" stroke="#4a3018" stroke-width="1.2"/>
+        <!-- Control panel top edge highlight -->
+        <rect x="22" y="184" width="156" height="2" fill="#6a4c28" opacity=".6"/>
+        <!-- Joystick base -->
+        <circle cx="70" cy="205" r="10" fill="#111" stroke="#333" stroke-width="1"/>
+        <circle cx="70" cy="205" r="5" fill="#222"/>
+        <!-- Joystick stick -->
+        <rect x="68" y="195" width="4" height="12" rx="2" fill="#1a1a1a"/>
+        <circle cx="70" cy="195" r="4" fill="#333"/>
+        <!-- Buttons -->
+        <circle cx="120" cy="200" r="7" fill="#1f6feb" stroke="#1050b0" stroke-width="1"/>
+        <circle cx="136" cy="207" r="7" fill="#c0392b" stroke="#8b2010" stroke-width="1"/>
+        <circle cx="152" cy="200" r="7" fill="#f39c12" stroke="#b07010" stroke-width="1"/>
+        <!-- Button labels -->
+        <text x="117" y="203" font-size="5" fill="#fff" font-family="monospace">A</text>
+        <text x="133" y="210" font-size="5" fill="#fff" font-family="monospace">B</text>
+        <text x="149" y="203" font-size="5" fill="#fff" font-family="monospace">C</text>
+        <!-- Base feet -->
+        <rect x="22" y="244" width="156" height="14" rx="4" fill="url(#woodGrad)" stroke="#3d2812" stroke-width="1.2"/>
+        <!-- Left foot -->
+        <rect x="28" y="254" width="30" height="8" rx="2" fill="#1e1408"/>
+        <!-- Right foot -->
+        <rect x="142" y="254" width="30" height="8" rx="2" fill="#1e1408"/>
+        <!-- Cabinet title text -->
+        <text x="100" y="44" font-size="10" fill="#ffd700" font-family="monospace" font-weight="bold" text-anchor="middle" filter="url(#neonBlue)">INDUSTRIAL</text>
+        <text x="100" y="56" font-size="7" fill="#1e90ff" font-family="monospace" text-anchor="middle">KONG</text>
+        <!-- Decorative rivets -->
+        <circle cx="25" cy="60" r="2" fill="#6a4c28"/>
+        <circle cx="175" cy="60" r="2" fill="#6a4c28"/>
+        <circle cx="25" cy="242" r="2" fill="#6a4c28"/>
+        <circle cx="175" cy="242" r="2" fill="#6a4c28"/>
+      </svg>
     </div>
   </div>
 </div>
@@ -296,15 +740,27 @@ footer p{font-family:var(--font-display);font-size:.85rem;color:var(--fg2)}
 <section id="galeria">
 <div class="container">
   <div class="section-divider"></div>
-  <div style="text-align:center;margin-bottom:48px" class="fade-up">
+  <div style="text-align:center;margin-bottom:48px" class="fade-up section-header" data-num="05">
     <p class="label">Imagens</p>
     <h2 class="section-title">Galeria</h2>
   </div>
   <div class="gallery-grid">
-    <div class="gallery-item steel-border fade-up"><img src="" style="width:100%;height:100%;object-fit:cover"><div class="gallery-overlay"><p style="font-size:.9rem">Gameplay do jogo Industrial Kong</p></div></div>
-    <div class="gallery-item steel-border fade-up"><img src="" style="width:100%;height:100%;object-fit:cover"><div class="gallery-overlay"><p style="font-size:.9rem">Fliperama artesanal de madeira</p></div></div>
-    <div class="gallery-item steel-border fade-up" style="background:var(--card);display:flex;align-items:center;justify-content:center"><span style="font-size:3rem;opacity:.3">🏭</span><div class="gallery-overlay"><p style="font-size:.9rem">Cenário industrial de uma fase</p></div></div>
-    <div class="gallery-item steel-border fade-up" style="background:var(--card);display:flex;align-items:center;justify-content:center"><span style="font-size:3rem;opacity:.3">👥</span><div class="gallery-overlay"><p style="font-size:.9rem">Equipe do projeto</p></div></div>
+    <div class="gallery-item steel-border fade-up" style="background:linear-gradient(135deg,#0a1520 0%,#0d2040 50%,#0a1828 100%)">
+      <div class="gallery-ph"><div class="gallery-ph-icon">🎮</div><div class="gallery-ph-line"></div><div class="gallery-ph-label">Gameplay<br>Industrial Kong</div></div>
+      <div class="gallery-overlay"><p style="font-size:.9rem">Gameplay do jogo Industrial Kong</p></div>
+    </div>
+    <div class="gallery-item steel-border fade-up" style="background:linear-gradient(135deg,#1a0d08 0%,#2a1a10 50%,#150c06 100%)">
+      <div class="gallery-ph"><div class="gallery-ph-icon">🕹️</div><div class="gallery-ph-line"></div><div class="gallery-ph-label">Fliperama<br>Artesanal</div></div>
+      <div class="gallery-overlay"><p style="font-size:.9rem">Fliperama artesanal de madeira</p></div>
+    </div>
+    <div class="gallery-item steel-border fade-up" style="background:linear-gradient(135deg,#0d1a0a 0%,#102212 50%,#0a150a 100%)">
+      <div class="gallery-ph"><div class="gallery-ph-icon">🏭</div><div class="gallery-ph-line"></div><div class="gallery-ph-label">Cenário Industrial<br>Fase em Jogo</div></div>
+      <div class="gallery-overlay"><p style="font-size:.9rem">Cenário industrial de uma fase</p></div>
+    </div>
+    <div class="gallery-item steel-border fade-up" style="background:linear-gradient(135deg,#0d0d1a 0%,#141428 50%,#0a0a14 100%)">
+      <div class="gallery-ph"><div class="gallery-ph-icon">👥</div><div class="gallery-ph-line"></div><div class="gallery-ph-label">Equipe do Projeto<br>SENAI</div></div>
+      <div class="gallery-overlay"><p style="font-size:.9rem">Equipe do projeto</p></div>
+    </div>
   </div>
 </div>
 </section>
@@ -313,7 +769,7 @@ footer p{font-family:var(--font-display);font-size:.85rem;color:var(--fg2)}
 <!-- EQUIPE -->
 <section id="equipe" class="industrial-bg">
 <div class="container">
-  <div style="text-align:center;margin-bottom:56px" class="fade-up">
+  <div style="text-align:center;margin-bottom:56px" class="fade-up section-header" data-num="06">
     <p class="label">Quem Fez</p>
     <h2 class="section-title">A Equipe</h2>
     <p style="color:var(--fg2);max-width:560px;margin:0 auto;font-size:.95rem;line-height:1.7">Os talentos por trás do Industrial Kong — do código ao fliperama, cada peça desse projeto tem uma mão humana.</p>
@@ -364,14 +820,22 @@ footer p{font-family:var(--font-display);font-size:.85rem;color:var(--fg2)}
 <section id="contato">
 <div class="container">
   <div class="section-divider"></div>
-  <div style="text-align:center;max-width:520px;margin:0 auto" class="fade-up">
+  <div style="text-align:center;max-width:520px;margin:0 auto" class="fade-up section-header" data-num="07">
     <p class="label">Fale Conosco</p>
     <h2 class="section-title">Contato</h2>
-    <p style="color:var(--fg2);margin-bottom:40px">Fale diretamente com o desenvolvedor para criar o seu projeto, landing page, loja virtual ou sistema personalizado.</p>
+    <p style="color:var(--fg2);margin-bottom:40px">Acompanhe o projeto, veja o código-fonte e fique por dentro das novidades do Industrial Kong.</p>
     <div class="contact-links">
       <a href="https://www.instagram.com/gumengerr/" class="contact-item" target="_blank">
         <span class="contact-icon steel-border">📸</span>
         <span style="font-size:.8rem">Instagram</span>
+      </a>
+      <a href="https://github.com/gumengerr/ProjetoSenai" class="contact-item" target="_blank">
+        <span class="contact-icon steel-border">💻</span>
+        <span style="font-size:.8rem">GitHub</span>
+      </a>
+      <a href="#equipe" class="contact-item">
+        <span class="contact-icon steel-border">👥</span>
+        <span style="font-size:.8rem">A Equipe</span>
       </a>
     </div>
   </div>
@@ -381,14 +845,137 @@ footer p{font-family:var(--font-display);font-size:.85rem;color:var(--fg2)}
 <!-- FOOTER -->
 <footer>
 <div class="container">
-  <p>© 2026 <span style="color:var(--primary-light)">Industrial Kong</span> — Projeto Mundo SENAI</p>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand-logo">INDUSTRIAL KONG</div>
+      <p class="footer-brand-desc">Jogo de plataforma inspirado no Donkey Kong, ambientado no universo industrial do SENAI — com fliperama artesanal de madeira feito à mão.</p>
+      <div style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap">
+        <span class="footer-tag">🎮 Arcade</span>
+        <span class="footer-tag">🏭 Industrial</span>
+        <span class="footer-tag">🌲 Artesanal</span>
+      </div>
+    </div>
+    <div>
+      <p class="footer-col-title">Navegação</p>
+      <ul class="footer-nav-list">
+        <li><a href="#sobre">Sobre o Projeto</a></li>
+        <li><a href="#desenvolvimento">Desenvolvimento</a></li>
+        <li><a href="#jogo">O Jogo</a></li>
+        <li><a href="#fliperama">Fliperama</a></li>
+        <li><a href="#galeria">Galeria</a></li>
+        <li><a href="#equipe">Equipe</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer-col-title">Links</p>
+      <div class="footer-social-links">
+        <a href="https://www.instagram.com/gumengerr/" class="footer-social-link" target="_blank">
+          <span class="footer-social-icon">📸</span>Instagram
+        </a>
+        <a href="https://github.com/gumengerr/ProjetoSenai" class="footer-social-link" target="_blank">
+          <span class="footer-social-icon">💻</span>GitHub
+        </a>
+        <a href="#equipe" class="footer-social-link">
+          <span class="footer-social-icon">👥</span>A Equipe
+        </a>
+      </div>
+      <p style="font-size:.75rem;color:var(--fg2);margin-top:20px;line-height:1.6">Projeto Mundo SENAI<br>Caçador — Santa Catarina, BR</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 <span style="color:var(--primary-light)">Industrial Kong</span> — Todos os direitos reservados</p>
+    <p>Feito com ♥ no SENAI Caçador</p>
+  </div>
 </div>
 </footer>
 
+<button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">▲</button>
+
 <script>
-window.addEventListener('scroll',()=>{document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>50)});
+// Loading screen
+window.addEventListener('load',()=>{setTimeout(()=>{document.getElementById('loader').classList.add('hidden')},1300)});
+
+// Scroll: navbar + reading progress + back-to-top
+const progressBar=document.getElementById('read-progress');
+const backTop=document.getElementById('back-top');
+window.addEventListener('scroll',()=>{
+  const sy=window.scrollY;
+  document.getElementById('navbar').classList.toggle('scrolled',sy>50);
+  const docH=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  progressBar.style.width=(docH>0?(sy/docH*100):0)+'%';
+  backTop.classList.toggle('show',sy>400);
+});
+
+// Fade-up observer
 const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:0.1});
 document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+
+// Steps connector observer
+const connector=document.getElementById('stepsConnector');
+if(connector){
+  const connObs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');connObs.unobserve(e.target)}})},{threshold:0.2});
+  connObs.observe(connector);
+}
+
+// Ripple effect on primary buttons
+document.querySelectorAll('.btn-primary').forEach(btn=>{
+  btn.addEventListener('click',function(e){
+    const r=document.createElement('span');
+    r.className='ripple-effect';
+    const rect=this.getBoundingClientRect();
+    const size=Math.max(rect.width,rect.height);
+    r.style.cssText='width:'+size+'px;height:'+size+'px;left:'+(e.clientX-rect.left-size/2)+'px;top:'+(e.clientY-rect.top-size/2)+'px';
+    this.appendChild(r);
+    setTimeout(()=>r.remove(),700);
+  });
+});
+
+// Stats counter animation
+const statObs=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('[data-target]').forEach(el=>{
+        const target=+el.dataset.target;
+        const suffix=el.dataset.suffix||'';
+        let current=0;
+        const steps=40;
+        const inc=target/steps;
+        const timer=setInterval(()=>{
+          current=Math.min(current+inc,target);
+          el.textContent=Math.round(current)+suffix;
+          if(current>=target)clearInterval(timer);
+        },28);
+      });
+      statObs.unobserve(e.target);
+    }
+  });
+},{threshold:0.4});
+document.querySelectorAll('.stats-strip').forEach(el=>statObs.observe(el));
+
+// Active nav highlight
+const sections=document.querySelectorAll('section[id]');
+const navLinks=document.querySelectorAll('.nav-links a[href^="#"]');
+const navObs=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navLinks.forEach(a=>a.classList.remove('nav-active'));
+      const active=document.querySelector('.nav-links a[href="#'+e.target.id+'"]');
+      if(active)active.classList.add('nav-active');
+    }
+  });
+},{rootMargin:'-35% 0px -60% 0px'});
+sections.forEach(s=>navObs.observe(s));
+
+// Team tooltips (auto-generated from role text)
+document.querySelectorAll('.team-card').forEach(card=>{
+  const role=card.querySelector('.team-role');
+  if(role&&role.textContent.trim()){
+    const tip=document.createElement('div');
+    tip.className='team-tooltip';
+    tip.textContent=role.textContent.trim();
+    card.appendChild(tip);
+  }
+});
 </script>
 </body>
 </html>

@@ -401,18 +401,18 @@ footer{border-top:1px solid var(--border);padding:0}
 #bottom-bar{position:fixed;bottom:0;left:0;right:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:0 24px;height:52px;background:rgba(8,12,20,0.96);backdrop-filter:blur(16px);border-top:1px solid rgba(255,107,0,0.18);gap:0}
 .bb-section{display:flex;align-items:center;gap:10px;padding:0 20px}
 .bb-divider{width:1px;height:28px;background:var(--border)}
-.bb-track-select{background:transparent;border:none;color:var(--accent);font-family:var(--font-display);font-size:.72rem;letter-spacing:.12em;cursor:pointer;outline:none;padding:4px 8px}
-.bb-track-select option{background:#0d1728;color:var(--fg)}
+
+
 .bb-play{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#e55a00);border:none;color:#fff;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:filter .2s;flex-shrink:0}
 .bb-play:hover{filter:brightness(1.2)}
 .bb-label{font-family:var(--font-display);font-size:.6rem;letter-spacing:.18em;color:var(--fg2)}
 .bb-game-btn{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--primary),#1060cc);color:#fff;padding:7px 18px;border-radius:6px;font-family:var(--font-display);font-size:.72rem;font-weight:600;letter-spacing:.08em;border:none;cursor:pointer;transition:filter .2s;white-space:nowrap}
 .bb-game-btn:hover{filter:brightness(1.2)}
-.bb-bars{display:flex;align-items:flex-end;gap:2px;height:20px}
-.bb-bar{width:3px;background:var(--accent);border-radius:2px;animation:bb-dance 0.8s ease-in-out infinite}
-.bb-bar:nth-child(2){animation-delay:.15s}.bb-bar:nth-child(3){animation-delay:.3s}.bb-bar:nth-child(4){animation-delay:.1s}
-@keyframes bb-dance{0%,100%{height:4px}50%{height:16px}}
-.bb-bars.paused .bb-bar{animation:none;height:4px}
+
+
+
+50%{height:16px}}
+.bb-bars.paused 
 @media(max-width:600px){.bb-label{display:none}.bb-section{padding:0 10px}.bb-game-btn span{display:none}}
 
 /* ── KONAMI OVERLAY ── */
@@ -441,24 +441,7 @@ footer{border-top:1px solid var(--border);padding:0}
 <!-- BOTTOM BAR -->
 <div id="bottom-bar">
   <div class="bb-section">
-    <span class="bb-label">TRILHA</span>
-    <select class="bb-track-select" id="bb-track">
-      <option value="arcade">ARCADE</option>
-      <option value="fabrica">FABRICA</option>
-      <option value="boss">BOSS BATTLE</option>
-      <option value="chill">8-BIT CHILL</option>
-    </select>
-  </div>
-  <div class="bb-divider"></div>
-  <div class="bb-section">
-    <div class="bb-bars paused" id="bb-bars">
-      <div class="bb-bar"></div><div class="bb-bar"></div><div class="bb-bar"></div><div class="bb-bar"></div>
-    </div>
-    <button class="bb-play" id="btn-music">&#9654;</button>
-  </div>
-  <div class="bb-divider"></div>
-  <div class="bb-section">
-    <button class="bb-game-btn" id="btn-game">JOGAR</button>
+    <button class="bb-game-btn" id="btn-game">&#127918; JOGAR INDUSTRIAL KONG</button>
   </div>
 </div>
 <!-- KONAMI OVERLAY -->
@@ -1677,6 +1660,9 @@ document.querySelectorAll('.team-card').forEach(card=>{
 </script>
 </body>
 </html>
+
+
+
 
 
 

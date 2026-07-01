@@ -425,6 +425,88 @@ body.crt{filter:contrast(1.15) brightness(0.88) saturate(0.75) sepia(0.12)}
 .game-close-btn:hover{color:var(--accent);border-color:var(--accent)}
 .play-game-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--accent),#e55a00);color:#fff;padding:12px 28px;border-radius:8px;font-family:var(--font-display);font-size:.82rem;font-weight:600;letter-spacing:.08em;border:none;cursor:pointer;margin-top:16px;transition:filter .2s}
 .play-game-btn:hover{filter:brightness(1.2)}
+
+/* ── ARCADE MODE ── */
+body.arcade{padding:110px 80px 130px;overflow-x:hidden}
+body.arcade nav{display:none!important}
+<!-- ARCADE CABINET FRAME -->
+<div id="arcade-cabinet">
+  <div id="arc-top">
+    <div class="arc-lights" id="arc-lights-a"></div>
+    <div class="arc-title">INDUSTRIAL KONG</div>
+    <div class="arc-subtitle">Projeto Mundo SENAI &mdash; 2026</div>
+    <div class="arc-lights" id="arc-lights-b"></div>
+  </div>
+  <div id="arc-left"></div>
+  <div id="arc-right"></div>
+  <div id="arc-bezel"></div>
+  <div id="arc-scanlines"></div>
+  <div id="arc-vignette"></div>
+  <div id="arc-bottom">
+    <div class="arc-stick-wrap"><div class="arc-ball"></div><div class="arc-stick"></div><div class="arc-base"></div></div>
+    <div class="arc-btns">
+      <div class="arc-btn-wrap"><button class="arc-btn arc-btn-r" onclick="toggleArcade()"></button><span class="arc-lbl">SAIR</span></div>
+      <div class="arc-btn-wrap"><button class="arc-btn arc-btn-y" onclick="document.getElementById('btn-game-hero').click()"></button><span class="arc-lbl">JOGAR</span></div>
+      <div class="arc-btn-wrap"><button class="arc-btn arc-btn-b" onclick="scrollTo({top:0,behavior:'smooth'})"></button><span class="arc-lbl">TOPO</span></div>
+      <div class="arc-btn-wrap"><button class="arc-btn arc-btn-g" onclick="document.querySelector('#sobre').scrollIntoView({behavior:'smooth'})"></button><span class="arc-lbl">EQUIPE</span></div>
+    </div>
+    <div class="arc-stick-wrap"><div class="arc-ball"></div><div class="arc-stick"></div><div class="arc-base"></div></div>
+  </div>
+</div>
+<button id="arcade-toggle-btn" onclick="toggleArcade()" title="Modo Arcade">&#127918;</button>
+body.arcade #crt-btn{display:none}
+body.arcade #arcade-toggle-btn{display:none}
+#arcade-cabinet{display:none;pointer-events:none}
+body.arcade #arcade-cabinet{display:block}
+
+#arc-top{position:fixed;top:0;left:0;right:0;height:110px;background:linear-gradient(180deg,#3e1a00 0%,#5c2a00 50%,#3e1a00 100%);border-bottom:4px solid #ff6b00;box-shadow:0 0 40px rgba(255,107,0,.5),0 6px 40px rgba(255,107,0,.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;z-index:9982;pointer-events:auto}
+#arc-top::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0px,rgba(0,0,0,.08) 1px,transparent 2px,transparent 18px);pointer-events:none}
+
+.arc-title{font-family:'Orbitron',sans-serif;font-size:clamp(1.1rem,2.5vw,1.9rem);font-weight:900;color:#ffd700;letter-spacing:.3em;text-transform:uppercase;animation:arc-glow 1.8s ease-in-out infinite alternate}
+.arc-subtitle{font-family:'Orbitron',sans-serif;font-size:.5rem;letter-spacing:.35em;color:rgba(255,200,80,.65);text-transform:uppercase}
+@keyframes arc-glow{from{text-shadow:0 0 12px #ff8c00,0 0 24px #ff6b00}to{text-shadow:0 0 28px #ffd700,0 0 55px #ff8c00,0 0 90px rgba(255,107,0,.5)}}
+
+.arc-lights{display:flex;gap:5px;margin:2px 0}
+.arc-light{width:9px;height:9px;border-radius:50%;animation:arc-blink .45s infinite alternate}
+.arc-light:nth-child(4n+1){background:#ff2020;color:#ff2020}
+.arc-light:nth-child(4n+2){background:#ffd700;color:#ffd700;animation-delay:.1s}
+.arc-light:nth-child(4n+3){background:#ff6b00;color:#ff6b00;animation-delay:.2s}
+.arc-light:nth-child(4n+0){background:#fff;color:#fff;animation-delay:.3s}
+@keyframes arc-blink{from{opacity:.25;filter:brightness(.4)}to{opacity:1;filter:brightness(1.6) drop-shadow(0 0 5px currentColor)}}
+
+#arc-left,#arc-right{position:fixed;top:110px;bottom:130px;width:80px;z-index:9982;pointer-events:none}
+#arc-left{left:0;background:linear-gradient(90deg,#1e0c00,#4a1e00 60%,#361500);border-right:3px solid rgba(255,107,0,.3);box-shadow:inset -10px 0 20px rgba(0,0,0,.5)}
+#arc-right{right:0;background:linear-gradient(270deg,#1e0c00,#4a1e00 60%,#361500);border-left:3px solid rgba(255,107,0,.3);box-shadow:inset 10px 0 20px rgba(0,0,0,.5)}
+#arc-left::after,#arc-right::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,rgba(0,0,0,.18) 2px,transparent 3px,transparent 14px)}
+
+#arc-bezel{position:fixed;top:110px;left:80px;right:80px;bottom:130px;z-index:9981;pointer-events:none;border:10px solid #120800;border-radius:6px 6px 3px 3px;box-shadow:inset 0 0 50px rgba(0,0,0,.7),inset 0 0 0 2px rgba(255,107,0,.12),0 0 0 2px rgba(255,107,0,.18)}
+#arc-scanlines{position:fixed;top:120px;left:90px;right:90px;bottom:140px;z-index:9983;pointer-events:none;background:repeating-linear-gradient(180deg,transparent 0,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 3px)}
+#arc-vignette{position:fixed;top:120px;left:90px;right:90px;bottom:140px;z-index:9984;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.35) 100%)}
+
+#arc-bottom{position:fixed;bottom:0;left:0;right:0;height:130px;background:linear-gradient(180deg,#4a1e00 0%,#2a1000 55%,#150800 100%);border-top:4px solid rgba(255,107,0,.45);box-shadow:0 -5px 35px rgba(255,107,0,.18);display:flex;align-items:center;justify-content:center;gap:50px;z-index:9982;pointer-events:auto}
+#arc-bottom::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,rgba(0,0,0,.07) 1px,transparent 2px,transparent 20px);pointer-events:none}
+
+.arc-stick-wrap{display:flex;flex-direction:column;align-items:center}
+.arc-ball{width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#888,#111);box-shadow:0 5px 10px rgba(0,0,0,.6),inset 0 -2px 5px rgba(255,255,255,.12);position:relative;z-index:1}
+.arc-stick{width:13px;height:26px;background:linear-gradient(180deg,#555,#1e1e1e);border-radius:2px;margin-top:-4px;box-shadow:0 4px 8px rgba(0,0,0,.4)}
+.arc-base{width:58px;height:14px;margin-top:-2px;background:linear-gradient(180deg,#3a3a3a,#111);border-radius:4px;box-shadow:0 4px 10px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.05)}
+
+.arc-btns{display:flex;gap:14px;align-items:flex-end}
+.arc-btn-wrap{display:flex;flex-direction:column;align-items:center;gap:5px}
+.arc-btn{width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;pointer-events:auto;transition:transform .12s,box-shadow .12s;outline:none}
+.arc-btn:active{transform:translateY(3px)!important}
+.arc-btn-r{background:#d01010;box-shadow:0 5px 0 #7a0808,0 0 18px rgba(208,16,16,.6)}
+.arc-btn-r:active{box-shadow:0 2px 0 #7a0808,0 0 10px rgba(208,16,16,.4)!important}
+.arc-btn-y{background:#c99000;box-shadow:0 5px 0 #7a5800,0 0 18px rgba(201,144,0,.6)}
+.arc-btn-y:active{box-shadow:0 2px 0 #7a5800!important}
+.arc-btn-b{background:#0d6efd;box-shadow:0 5px 0 #083e8a,0 0 18px rgba(13,110,253,.6)}
+.arc-btn-b:active{box-shadow:0 2px 0 #083e8a!important}
+.arc-btn-g{background:#0a7a38;box-shadow:0 5px 0 #054520,0 0 18px rgba(10,122,56,.6)}
+.arc-btn-g:active{box-shadow:0 2px 0 #054520!important}
+.arc-lbl{font-family:'Orbitron',sans-serif;font-size:.42rem;color:rgba(255,200,80,.6);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+
+#arcade-toggle-btn{position:fixed;top:130px;right:16px;z-index:90;width:38px;height:38px;border-radius:8px;background:rgba(8,12,20,.9);border:1px solid var(--border);color:var(--fg2);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;backdrop-filter:blur(8px)}
+#arcade-toggle-btn:hover,#arcade-toggle-btn.on{border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px rgba(255,107,0,.35)}
 </style>
 </head>
 <body>
@@ -1818,6 +1900,18 @@ document.getElementById('crt-btn').addEventListener('click',function(){
   tick();
   setInterval(tick, 1000);
 })();
+
+// ── ARCADE MODE ────────────────────────────────────────────────────────
+(function(){
+  var la=document.getElementById('arc-lights-a');
+  var lb=document.getElementById('arc-lights-b');
+  if(la&&lb){for(var i=0;i<30;i++){la.innerHTML+='<span class="arc-light"></span>';lb.innerHTML+='<span class="arc-light"></span>';}}
+})();
+function toggleArcade(){
+  var on=document.body.classList.toggle('arcade');
+  document.getElementById('arcade-toggle-btn').classList.toggle('on',on);
+  if(on){window.scrollTo(0,0);}
+}
 </script>
 </body>
 </html>

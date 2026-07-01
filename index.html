@@ -412,7 +412,6 @@ footer{border-top:1px solid var(--border);padding:0}
 
 
 50%{height:16px}}
-.bb-bars.paused 
 @media(max-width:600px){.bb-label{display:none}.bb-section{padding:0 10px}.bb-game-btn span{display:none}}
 
 /* ── KONAMI OVERLAY ── */
@@ -1418,37 +1417,6 @@ document.querySelectorAll('.team-card').forEach(card=>{
   }
 });
 
-// ── MÚSICA 8-BIT ──────────────────────────────────────────────────────
-(function(){
-  let ctx, playing = false, nodes = [];
-  const notes = [330,392,440,392,330,294,262,262,330,392,440,392,330,294,262,262,392,440,494,440,392,330,294,294];
-  const dur = 0.15;
-  function playMelody(){
-    if(!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)();
-    nodes.forEach(n=>{try{n.stop()}catch(e){}});
-    nodes=[];
-    let t = ctx.currentTime;
-    notes.forEach((freq,i)=>{
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type='square';
-      o.frequency.value=freq;
-      g.gain.setValueAtTime(0.06,t);
-      g.gain.exponentialRampToValueAtTime(0.001,t+dur*0.9);
-      o.connect(g);g.connect(ctx.destination);
-      o.start(t);o.stop(t+dur);
-      nodes.push(o);
-      t+=dur;
-    });
-    if(playing) setTimeout(playMelody, notes.length*dur*1000+200);
-  }
-  document.getElementById('btn-music').addEventListener('click', function(){
-    playing = !playing;
-    this.classList.toggle('active', playing);
-    if(playing) playMelody();
-    else { nodes.forEach(n=>{try{n.stop()}catch(e){}});nodes=[]; }
-  });
-})();
 
 // ── KONAMI CODE ────────────────────────────────────────────────────────
 (function(){
@@ -1660,6 +1628,7 @@ document.querySelectorAll('.team-card').forEach(card=>{
 </script>
 </body>
 </html>
+
 
 
 

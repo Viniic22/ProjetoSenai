@@ -1408,6 +1408,30 @@ document.querySelectorAll('.team-card').forEach(card=>{
   }
   draw();
 })();
+
+// ── COUNTDOWN 20/11/2026 ───────────────────────────────────────────────
+(function(){
+  const end = new Date('2026-11-20T08:00:00').getTime();
+  function tick(){
+    const diff = end - Date.now();
+    if(diff <= 0){
+      document.getElementById('countdown-wrap').innerHTML =
+        '<span style="font-family:var(--font-display);color:#2ecc71;font-size:.9rem;padding:14px 24px">&#10003; DIA DA APRESENTAÇÃO!</span>';
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    const pad = n => String(n).padStart(2,'0');
+    document.getElementById('cd-d').textContent = pad(d);
+    document.getElementById('cd-h').textContent = pad(h);
+    document.getElementById('cd-m').textContent = pad(m);
+    document.getElementById('cd-s').textContent = pad(s);
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
 </script>
 </body>
 </html>

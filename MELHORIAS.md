@@ -100,6 +100,25 @@ ProjetoSenaiGit/
 
 ---
 
+## Ranking de Cliques no Instagram
+
+- Cada clique no Instagram de um integrante incrementa um contador **global** (todos os visitantes, não só quem clicou), via API pública gratuita `abacus.jasoncameron.dev` — sem backend próprio.
+- Badge "X cliques" abaixo do `@usuário` de cada card, atualizado ao carregar a página.
+- Quem lidera ganha um 👑 animado + borda dourada no card (`.team-card.is-leader`).
+- Risco: depende de serviço gratuito de terceiros sem SLA; se sair do ar, o link do Instagram continua funcionando, só o contador para de atualizar.
+
+---
+
+## Correções Mobile
+
+| Item | Problema | Solução |
+|---|---|---|
+| Modo Arcade | Barra inferior (2 analógicos + 4 botões) precisava de ~450px de largura — estourava qualquer tela de celular; não existia media query pro arcade | `@media(max-width:640px)` reduzindo analógicos, botões e barras laterais (80px → 6px) |
+| Analógicos no arcade | Toque sempre rolava pra cima (direção calculada via `mousemove`, que não existe em touch) | Handler de `touchstart` calculando a direção pelo ponto tocado |
+| Contagem regressiva | 4 blocos com `min-width:70px` (280px total) estourava em telas ≤320px | Ajuste `@media(max-width:380px)` reduzindo padding/fonte |
+
+---
+
 ## Melhorias de Acessibilidade
 
 | Item | Problema | Solução |

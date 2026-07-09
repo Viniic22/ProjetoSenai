@@ -1,7 +1,8 @@
 # Industrial Kong — Registro de Melhorias
 
 Projeto Mundo SENAI | Desenvolvido por Vinicius, Gustavo e equipe  
-Repositório: https://github.com/gumengerr/ProjetoSenai
+Repositório: https://github.com/Viniic22/ProjetoSenai  
+Site publicado: https://kongsenai.netlify.app (deploy automático a cada push)
 
 ---
 
@@ -12,12 +13,12 @@ ProjetoSenaiGit/
 ├── index.html       ← site completo (HTML + CSS + JS embutidos)
 ├── hero-bg.png      ← imagem de fundo do Hero (pixel art industrial)
 └── fotos/
-    ├── carol.png
-    ├── gustavo.png
-    ├── nathallye.png
-    ├── rafael.png
-    ├── vinicius.png
-    └── yasmin.png
+    ├── carol.png / carol.webp        (o .webp é o usado no site — muito mais leve)
+    ├── gustavo.png / gustavo.webp
+    ├── nathallye.png / nathallye.webp
+    ├── rafael.png / rafael.webp
+    ├── vinicius.png / vinicius.webp
+    └── yasmin.png / yasmin.webp
 ```
 
 ---
@@ -98,7 +99,38 @@ ProjetoSenaiGit/
 - Texto atualizado para contexto escolar
 - Instagram + link para seção Equipe
 - Botão **Compartilhar** (Web Share API no celular; copia o link com toast de confirmação no desktop)
-- Card com **QR code** apontando pro site publicado (`gumengerr.github.io/ProjetoSenai`) — pra colar perto do fliperama artesanal na apresentação
+- Card com **QR code** apontando pro site publicado (`kongsenai.netlify.app`) — pra colar perto do fliperama artesanal na apresentação
+
+---
+
+## SEO e Metatags Sociais
+
+- Favicon em SVG inline (engrenagem sobre fundo escuro, sem arquivo externo).
+- Open Graph (`og:title`, `og:description`, `og:image`, `og:url`) e Twitter Card — agora o link do site mostra título, descrição e imagem de preview ao ser compartilhado no WhatsApp/Instagram/Twitter.
+- `<link rel="canonical">` e `theme-color` apontando pro site publicado.
+
+---
+
+## Performance de Imagens
+
+- Fotos da equipe: de **base64 embutido no HTML** (até 2,2MB por foto, ~300KB de HTML só nisso) para arquivos **WebP externos comprimidos** (`fotos/*.webp`, ~4 a 11KB cada) com `loading="lazy"`.
+- Redução de **~59% no tamanho do `index.html`** (de ~312KB pra ~128KB).
+- Processado com `sharp-cli` (resize 320×320 + qualidade 78%); os `.png` originais continuam no repositório como arquivo-fonte, só não são mais carregados pelo site.
+
+---
+
+## Analytics Simples por Seção
+
+- Cada seção da página (Sobre, Jogo, Fliperama, Equipe etc.) incrementa um contador global na primeira vez que aparece na tela do visitante (1x por sessão), via a mesma API pública já usada no ranking do Instagram.
+- Painel de estatísticas **oculto**, só visível acessando o site com `?stats` no final do link (ex: `kongsenai.netlify.app/?stats`) — mostra as seções ordenadas por popularidade. Uso interno da equipe, não aparece pra visitantes comuns.
+
+---
+
+## Tema Claro/Escuro
+
+- Botão 🌙/☀️ na navbar alterna entre tema escuro (padrão) e um tema claro completo, com preferência salva no `localStorage` e detecção inicial via `prefers-color-scheme`.
+- Script inline no `<head>` aplica o tema antes da primeira renderização, evitando "flash" do tema errado.
+- **Hero e Modo Arcade mantêm a estética escura sempre**, mesmo com o tema claro ativo — decisão de design (o Hero tem uma foto de fundo escura com texto branco; o gabinete arcade simula uma máquina física) — feito "prendendo" as variáveis de cor localmente nesses dois blocos.
 
 ---
 

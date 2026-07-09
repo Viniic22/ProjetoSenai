@@ -97,6 +97,30 @@ ProjetoSenaiGit/
 ### Seção Contato
 - Texto atualizado para contexto escolar
 - Instagram + link para seção Equipe
+- Botão **Compartilhar** (Web Share API no celular; copia o link com toast de confirmação no desktop)
+- Card com **QR code** apontando pro site publicado (`gumengerr.github.io/ProjetoSenai`) — pra colar perto do fliperama artesanal na apresentação
+
+---
+
+## Sons 8-bit no Modo Arcade
+
+- Bipes retrô sintetizados via Web Audio API (sem arquivo de áudio nenhum): clique nos botões do gabinete, movimento dos analógicos, "power on/off" ao entrar/sair do modo arcade.
+- Botão de mudo (🔊/🔇) no canto superior do gabinete, preferência salva no `localStorage`.
+
+---
+
+## Contador de Visitantes
+
+- Badge retrô "VISITANTE Nº 000042" no Hero, no estilo contador de visitas old-school — usa a mesma API pública já validada no ranking do Instagram (namespace `industrial-kong-senai-cacador`, chave `site-visits`).
+- Conta 1 vez por sessão do navegador (`sessionStorage`) pra não inflar a cada F5.
+
+---
+
+## Modo Impressão
+
+- `@media print` sobrescreve as variáveis de cor (`--bg`, `--fg`, `--card`, etc.) pra fundo branco/texto escuro, evitando imprimir página toda preta.
+- Corrige textos com gradiente (título, logo) que ficariam **invisíveis** na impressão por usarem `-webkit-text-fill-color:transparent`.
+- Esconde elementos só-interativos (nav, arcade, botão voltar ao topo, toasts) e mostra a URL dos links externos entre parênteses.
 
 ---
 

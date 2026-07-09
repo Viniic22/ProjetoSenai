@@ -125,6 +125,10 @@ section{padding:96px 0}
 .contact-item:hover{color:var(--primary-light)}
 .contact-icon{width:48px;height:48px;border-radius:10px;background:var(--card);display:flex;align-items:center;justify-content:center;transition:box-shadow .3s}
 .contact-item:hover .contact-icon{box-shadow:0 0 20px rgba(31,111,235,.4)}
+.share-btn{background:none;border:none;font-family:inherit;cursor:pointer;padding:0}
+.qr-card{margin:44px auto 0;max-width:220px;text-align:center;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px}
+.qr-card img{border-radius:8px;background:#fff;padding:8px;display:block;margin:0 auto;max-width:100%;height:auto}
+.qr-caption{font-size:.72rem;color:var(--fg2);margin-top:12px;line-height:1.5}
 
 /* FOOTER */
 footer{border-top:1px solid var(--border);padding:32px 0;text-align:center}
@@ -215,6 +219,12 @@ a,button,[role=button],.gallery-item,.team-card,.spec-card,.making-card,.phase-c
   .countdown-block{padding:11px 8px;min-width:52px}
   .countdown-num{font-size:1.5rem}
 }
+
+/* ── CONTADOR DE VISITANTES (retro high-score) ── */
+.visit-counter{display:none;align-items:center;gap:8px;margin-top:18px;padding:8px 16px;border-radius:8px;background:rgba(8,12,20,.6);border:1px solid rgba(46,204,113,.28);font-family:var(--font-display);font-size:.68rem;letter-spacing:.08em;color:#2ecc71;text-shadow:0 0 8px rgba(46,204,113,.5);opacity:0;transition:opacity .5s;font-variant-numeric:tabular-nums}
+.visit-counter.visible{display:inline-flex;opacity:1}
+.vc-dot{width:6px;height:6px;border-radius:50%;background:#2ecc71;box-shadow:0 0 6px #2ecc71;animation:vc-blink 1.4s infinite;flex-shrink:0}
+@keyframes vc-blink{0%,100%{opacity:1}50%{opacity:.25}}
 
 /* ── MAKING OF ── */
 .making-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
@@ -449,6 +459,11 @@ body.arcade #arcade-cabinet{display:block}
 .arc-btn-r{background:#d01010;box-shadow:0 5px 0 #7a0808,0 0 18px rgba(208,16,16,.6)}.arc-btn-y{background:#c99000;box-shadow:0 5px 0 #7a5800,0 0 18px rgba(201,144,0,.6)}.arc-btn-b{background:#0d6efd;box-shadow:0 5px 0 #083e8a,0 0 18px rgba(13,110,253,.6)}.arc-btn-g{background:#0a7a38;box-shadow:0 5px 0 #054520,0 0 18px rgba(10,122,56,.6)}
 .arc-btn-r:active{box-shadow:0 2px 0 #7a0808!important}.arc-btn-y:active{box-shadow:0 2px 0 #7a5800!important}.arc-btn-b:active{box-shadow:0 2px 0 #083e8a!important}.arc-btn-g:active{box-shadow:0 2px 0 #054520!important}
 .arc-lbl{font-family:'Orbitron',sans-serif;font-size:.42rem;color:rgba(255,200,80,.6);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+#arcade-mute-btn{position:fixed;top:14px;right:16px;z-index:9990;pointer-events:auto;width:38px;height:38px;border-radius:9px;background:rgba(8,12,20,.55);border:1px solid rgba(255,107,0,.35);color:#ffd700;font-size:1.05rem;display:none;align-items:center;justify-content:center;cursor:pointer;transition:background .2s,border-color .2s}
+#arcade-mute-btn:hover{background:rgba(255,107,0,.2);border-color:var(--accent)}
+body.arcade #arcade-mute-btn{display:flex}
+#arcade-mute-btn.muted{color:var(--fg2)}
+@media(max-width:640px){#arcade-mute-btn{top:8px;right:8px;width:30px;height:30px;font-size:.85rem}}
 #arcade-toggle-btn{position:fixed;bottom:32px;right:24px;z-index:9000;display:flex;align-items:center;gap:8px;padding:12px 20px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#e55a00);color:#fff;font-family:var(--font-display);font-size:.72rem;font-weight:700;letter-spacing:.12em;cursor:pointer;border:none;box-shadow:0 0 24px rgba(255,107,0,.5),0 4px 16px rgba(0,0,0,.4);transition:all .2s;animation:arc-btn-pulse 2s infinite}
 @keyframes arc-btn-pulse{0%,100%{box-shadow:0 0 24px rgba(255,107,0,.5),0 4px 16px rgba(0,0,0,.4)}50%{box-shadow:0 0 40px rgba(255,107,0,.8),0 4px 20px rgba(0,0,0,.4)}}
 #arcade-toggle-btn:hover{filter:brightness(1.15);transform:translateY(-2px)}
@@ -490,6 +505,27 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,[tabindex]:focu
   .hero-gear,.chevron,.glitch-text,.arc-light,#arc-top,#arcade-toggle-btn{animation:none!important}
   html{scroll-behavior:auto}
 }
+
+/* ── MODO IMPRESSÃO ── */
+@media print{
+  :root{
+    --bg:#fff;--bg2:#fff;--bg3:#fff;
+    --fg:#111;--fg2:#444;
+    --primary:#0645ad;--primary-light:#0645ad;--primary-glow:transparent;
+    --accent:#a34700;--accent-light:#a34700;--accent-glow:transparent;
+    --border:#ccc;--card:#fff;
+  }
+  *,*::before,*::after{animation:none!important;transition:none!important;box-shadow:none!important;text-shadow:none!important}
+  nav,#arcade-cabinet,#arcade-toggle-btn,#arcade-mute-btn,#back-top,.skip-link,#loader,#sparks-canvas,.hero-gears-wrap,#read-progress,.chevron,.arcade-toast,#app-toast,.visit-counter,.share-btn,#mob{display:none!important}
+  .hero{min-height:auto;padding:24px 0}
+  .hero-bg{display:none!important}
+  section{padding:20px 0}
+  .text-gradient,.nav-logo,.stat-num,.footer-brand-logo{background:none!important;-webkit-text-fill-color:#111!important;color:#111!important}
+  .team-card::before,.team-card::after,.team-tooltip{display:none!important}
+  a{color:#111!important;text-decoration:underline}
+  a[href^="http"]:after{content:" (" attr(href) ")";font-size:.72em;color:#666}
+  .card,.team-card,.step-card,.phase-card,.spec-card,.making-card{break-inside:avoid}
+}
 </style>
 </head>
 <body>
@@ -502,6 +538,7 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,[tabindex]:focu
     <div class="arc-subtitle">Projeto Mundo SENAI &mdash; 2026</div>
     <div class="arc-lights" id="arc-lights-b"></div>
   </div>
+  <button id="arcade-mute-btn" onclick="toggleArcadeSound(this)" aria-label="Silenciar sons do arcade" aria-pressed="false" title="Silenciar sons">🔊</button>
   <div id="arc-left" aria-hidden="true"></div>
   <div id="arc-right" aria-hidden="true"></div>
   <div id="arc-bezel" aria-hidden="true"></div>
@@ -510,10 +547,10 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,[tabindex]:focu
   <div id="arc-bottom">
     <div class="arc-stick-wrap" id="arc-stick-l" role="button" tabindex="0" aria-label="Rolar a página"><div class="arc-ball"></div><div class="arc-stick"></div><div class="arc-base"></div><div class="arc-stick-lbl" aria-hidden="true">ROLAR</div></div>
     <div class="arc-btns">
-      <div class="arc-btn-wrap"><button class="arc-btn arc-btn-r" onclick="toggleArcade()" aria-label="Sair do modo arcade"></button><span class="arc-lbl" aria-hidden="true">SAIR</span></div>
-      <div class="arc-btn-wrap"><button class="arc-btn arc-btn-y" onclick="document.getElementById('jogo').scrollIntoView({behavior:'smooth'})" aria-label="Ir para a seção O Jogo"></button><span class="arc-lbl" aria-hidden="true">O JOGO</span></div>
-      <div class="arc-btn-wrap"><button class="arc-btn arc-btn-b" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo"></button><span class="arc-lbl" aria-hidden="true">TOPO</span></div>
-      <div class="arc-btn-wrap"><button class="arc-btn arc-btn-g" onclick="document.getElementById('equipe').scrollIntoView({behavior:'smooth'})" aria-label="Ir para a seção Equipe"></button><span class="arc-lbl" aria-hidden="true">EQUIPE</span></div>
+      <div class="arc-btn-wrap"><button class="arc-btn arc-btn-r" onclick="arcadeSound.click();toggleArcade()" aria-label="Sair do modo arcade"></button><span class="arc-lbl" aria-hidden="true">SAIR</span></div>
+      <div class="arc-btn-wrap"><button class="arc-btn arc-btn-y" onclick="arcadeSound.click();document.getElementById('jogo').scrollIntoView({behavior:'smooth'})" aria-label="Ir para a seção O Jogo"></button><span class="arc-lbl" aria-hidden="true">O JOGO</span></div>
+      <div class="arc-btn-wrap"><button class="arc-btn arc-btn-b" onclick="arcadeSound.click();window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo"></button><span class="arc-lbl" aria-hidden="true">TOPO</span></div>
+      <div class="arc-btn-wrap"><button class="arc-btn arc-btn-g" onclick="arcadeSound.click();document.getElementById('equipe').scrollIntoView({behavior:'smooth'})" aria-label="Ir para a seção Equipe"></button><span class="arc-lbl" aria-hidden="true">EQUIPE</span></div>
     </div>
     <div class="arc-stick-wrap" id="arc-stick-r" role="button" tabindex="0" aria-label="Navegar entre seções"><div class="arc-ball"></div><div class="arc-stick"></div><div class="arc-base"></div><div class="arc-stick-lbl" aria-hidden="true">SEÇÃO</div></div>
   </div>
@@ -584,6 +621,7 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,[tabindex]:focu
       <a href="#sobre" class="btn-primary">EXPLORAR PROJETO</a>
       <a href="#jogo" style="display:inline-flex;align-items:center;gap:8px;color:var(--fg2);font-family:var(--font-display);font-size:.82rem;letter-spacing:.06em;padding:14px 24px;border:1px solid var(--border);border-radius:8px;transition:color .2s,border-color .2s" onmouseover="this.style.color='var(--fg)';this.style.borderColor='rgba(88,166,255,.4)'" onmouseout="this.style.color='var(--fg2)';this.style.borderColor='var(--border)'">VER O JOGO ▶</a>
     </div>
+    <div class="visit-counter" id="visit-counter"><span class="vc-dot" aria-hidden="true"></span><span id="visit-counter-text"></span></div>
   </div>
   <div class="hero-art">
     <div class="hero-screen">
@@ -1346,7 +1384,15 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,[tabindex]:focu
         <span class="contact-icon steel-border">👥</span>
         <span style="font-size:.8rem">A Equipe</span>
       </a>
+      <button type="button" class="contact-item share-btn" onclick="shareSite()">
+        <span class="contact-icon steel-border" aria-hidden="true">📤</span>
+        <span style="font-size:.8rem">Compartilhar</span>
+      </button>
     </div>
+  </div>
+  <div class="qr-card fade-up">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;margin=8&amp;data=https%3A%2F%2Fgumengerr.github.io%2FProjetoSenai%2F" alt="QR code para acessar o site do Industrial Kong" width="140" height="140" loading="lazy">
+    <p class="qr-caption">Aponte a câmera do celular pra acessar o site</p>
   </div>
 </div>
 </section>
@@ -1393,8 +1439,60 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,[tabindex]:focu
 </footer>
 
 <button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo" aria-label="Voltar ao topo da página">▲</button>
+<div id="app-toast" class="arcade-toast" role="status" aria-live="polite"></div>
 
 <script>
+// ── SONS 8-BIT DO ARCADE (Web Audio API, sem arquivos externos) ──
+var arcadeSound=(function(){
+  var ctx=null;
+  var muted=localStorage.getItem('ik-sound-muted')==='1';
+  function getCtx(){
+    if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)();
+    if(ctx.state==='suspended') ctx.resume();
+    return ctx;
+  }
+  function beep(freq,dur,vol){
+    if(muted) return;
+    try{
+      var c=getCtx();
+      var osc=c.createOscillator();
+      var gain=c.createGain();
+      osc.type='square';
+      osc.frequency.value=freq;
+      gain.gain.setValueAtTime(vol||.12,c.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.0001,c.currentTime+dur);
+      osc.connect(gain).connect(c.destination);
+      osc.start();
+      osc.stop(c.currentTime+dur);
+    }catch(e){}
+  }
+  return{
+    click:function(){beep(720,.07);},
+    move:function(){beep(340,.05,.08);},
+    powerOn:function(){beep(220,.09);setTimeout(function(){beep(440,.12);},90);},
+    powerOff:function(){beep(440,.09);setTimeout(function(){beep(220,.14);},90);},
+    isMuted:function(){return muted;},
+    setMuted:function(v){muted=v;localStorage.setItem('ik-sound-muted',v?'1':'0');}
+  };
+})();
+function toggleArcadeSound(btn){
+  var m=!arcadeSound.isMuted();
+  arcadeSound.setMuted(m);
+  btn.textContent=m?'🔇':'🔊';
+  btn.classList.toggle('muted',m);
+  btn.setAttribute('aria-pressed',m);
+  btn.setAttribute('aria-label',m?'Ativar sons do arcade':'Silenciar sons do arcade');
+}
+(function(){
+  var btn=document.getElementById('arcade-mute-btn');
+  if(btn&&arcadeSound.isMuted()){
+    btn.textContent='🔇';
+    btn.classList.add('muted');
+    btn.setAttribute('aria-pressed','true');
+    btn.setAttribute('aria-label','Ativar sons do arcade');
+  }
+})();
+
 // Loading screen
 window.addEventListener('load',()=>{setTimeout(()=>{document.getElementById('loader').classList.add('hidden')},1300)});
 
@@ -1410,6 +1508,35 @@ function closeMobileMenu(){
   mob.classList.remove('open');
   const btn=document.querySelector('.menu-btn');
   if(btn){btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label','Abrir menu de navegação');}
+}
+
+// Toast genérico (usado pelo compartilhamento)
+function showArcadeToast(msg){
+  var t=document.getElementById('app-toast');
+  if(!t) return;
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._hideTimer);
+  t._hideTimer=setTimeout(function(){t.classList.remove('show');},2600);
+}
+
+// Compartilhar o site (Web Share API com fallback pra copiar o link)
+function shareSite(){
+  var url='https://gumengerr.github.io/ProjetoSenai/';
+  var shareData={title:'Industrial Kong — Mundo SENAI',text:'Confira o Industrial Kong, jogo de plataforma industrial com fliperama artesanal, projeto do Mundo SENAI!',url:url};
+  if(navigator.share){
+    navigator.share(shareData).catch(function(){});
+    return;
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(function(){
+      showArcadeToast('🔗 Link copiado para a área de transferência!');
+    }).catch(function(){
+      window.prompt('Copie o link do site:',url);
+    });
+  }else{
+    window.prompt('Copie o link do site:',url);
+  }
 }
 
 // Scroll: navbar + reading progress + back-to-top
@@ -1583,7 +1710,7 @@ document.querySelectorAll('.team-card').forEach(card=>{
 function toggleArcade(){
   var on=document.body.classList.toggle('arcade');
   document.getElementById('arcade-toggle-btn').classList.toggle('on',on);
-  if(on)window.scrollTo(0,0);
+  if(on){window.scrollTo(0,0);arcadeSound.powerOn();}else{arcadeSound.powerOff();}
 }
 // Analógicos interativos
 (function(){
@@ -1610,6 +1737,7 @@ function toggleArcade(){
       var snapY=dir==='up'?-13:13;
       ball.style.transition='transform .06s ease-in';
       ball.style.transform='translate(0px,'+snapY+'px)';
+      arcadeSound.move();
       setTimeout(function(){
         ball.style.transition='transform .18s cubic-bezier(.25,.46,.45,.94)';
         ball.style.transform='';
@@ -1641,6 +1769,25 @@ function toggleArcade(){
       if(el)el.scrollIntoView({behavior:'smooth'});
     }
   );
+})();
+
+// ── CONTADOR DE VISITANTES (estilo high-score retro, via API pública) ──
+(function(){
+  var NS='industrial-kong-senai-cacador';
+  var API='https://abacus.jasoncameron.dev';
+  var wrap=document.getElementById('visit-counter');
+  var text=document.getElementById('visit-counter-text');
+  if(!wrap||!text) return;
+  function render(n){
+    text.textContent='VISITANTE Nº '+String(n).padStart(6,'0');
+    wrap.classList.add('visible');
+  }
+  var cached=sessionStorage.getItem('ik-visit-num');
+  if(cached){render(cached);return;}
+  fetch(API+'/hit/'+NS+'/site-visits')
+    .then(function(r){return r.json();})
+    .then(function(d){sessionStorage.setItem('ik-visit-num',d.value);render(d.value);})
+    .catch(function(){});
 })();
 
 // ── RANKING DE CLIQUES NO INSTAGRAM (contador global via API pública) ──

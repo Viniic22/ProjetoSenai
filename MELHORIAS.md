@@ -100,6 +100,23 @@ ProjetoSenaiGit/
 
 ---
 
+## Melhorias de Acessibilidade
+
+| Item | Problema | Solução |
+|---|---|---|
+| Navegação por teclado | Sem forma de pular a navbar | Link "Pular para o conteúdo principal" (`.skip-link`) visível ao focar |
+| Foco visível | `outline:none` nos botões do modo arcade escondia o foco do teclado | `:focus-visible` restaurado em todos os elementos interativos |
+| Modo arcade | Joysticks só funcionavam com mouse (drag) | `role="button"` + `tabindex` + suporte a `Tab`, setas `↑↓` e `Enter` |
+| Movimento | Glitch, engrenagens girando, pulsos e parallax sempre ativos | `@media (prefers-reduced-motion: reduce)` desativa/reduz animações |
+| Leitores de tela | Elementos decorativos (canvas de faíscas, engrenagens, emojis, seta do chevron, moldura do fliperama) eram lidos sem sentido | Marcados com `aria-hidden="true"` |
+| Botões só-ícone | Menu hambúrguer, voltar ao topo e botões do arcade sem nome acessível | `aria-label` adicionado a todos |
+| Menu mobile | Estado aberto/fechado não era informado a leitores de tela | `aria-expanded` sincronizado via JS |
+| Fotos da equipe | `alt="Integrante 1"` a `"Integrante 6"` (genérico) | Trocado por nome + função de cada membro |
+| Contraste | Legenda da galeria com `rgba(255,255,255,.22)` (~2:1, reprovado) | Aumentado para `.72` (~10:1, aprovado WCAG AA/AAA) |
+| Contador regressivo | Atualização a cada segundo sem semântica | `role="timer" aria-live="off"` evita leitura ruidosa |
+
+---
+
 ## Tela de Loading
 - Splash screen com logo pulsando e barra de progresso
 - Desaparece automaticamente após 1.3 segundos

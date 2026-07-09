@@ -1391,7 +1391,7 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,[tabindex]:focu
     </div>
   </div>
   <div class="qr-card fade-up">
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;margin=8&amp;data=https%3A%2F%2Fgumengerr.github.io%2FProjetoSenai%2F" alt="QR code para acessar o site do Industrial Kong" width="140" height="140" loading="lazy">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;margin=8&amp;data=https%3A%2F%2Fkongsenai.netlify.app%2F" alt="QR code para acessar o site do Industrial Kong" width="140" height="140" loading="lazy">
     <p class="qr-caption">Aponte a câmera do celular pra acessar o site</p>
   </div>
 </div>
@@ -1522,7 +1522,7 @@ function showArcadeToast(msg){
 
 // Compartilhar o site (Web Share API com fallback pra copiar o link)
 function shareSite(){
-  var url='https://gumengerr.github.io/ProjetoSenai/';
+  var url='https://kongsenai.netlify.app/';
   var shareData={title:'Industrial Kong — Mundo SENAI',text:'Confira o Industrial Kong, jogo de plataforma industrial com fliperama artesanal, projeto do Mundo SENAI!',url:url};
   if(navigator.share){
     navigator.share(shareData).catch(function(){});

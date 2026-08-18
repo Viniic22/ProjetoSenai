@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Escritório Kong — Desafio Corporativo SENAI</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--ink:#fff;--ink2:#9fb0c8;--gold:#f7cf5a;--blue:#4aa3ff;--red:#ff5252;--font:'Segoe UI',system-ui,sans-serif}
+  html,body{height:100%;background:#05070c;color:var(--ink);font-family:var(--font);overflow:hidden}
+  body{display:flex;align-items:center;justify-content:center}
+  #wrap{position:relative;width:min(100vw,calc(100vh*16/9));aspect-ratio:16/9}
+  canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;
+    background:#8fd0ef}
+  #wrap:fullscreen{width:100vw;height:100vh;display:flex;align-items:center;justify-content:center}
+  #wrap:fullscreen canvas{width:100%;height:100%;object-fit:contain}
+  #fsbtn{position:absolute;top:8px;right:8px;z-index:5;width:34px;height:34px;border-radius:7px;cursor:pointer;
+    background:rgba(10,16,28,.55);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:16px;line-height:1}
+  #fsbtn:hover{background:rgba(30,50,84,.75)}
+  .overlay{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+    gap:16px;text-align:center;padding:24px;background:rgba(6,9,16,.82);backdrop-filter:blur(2px);border-radius:6px}
+  .overlay.show{display:flex}
+  .overlay h1{font-size:clamp(28px,7vw,52px);letter-spacing:2px;line-height:.95;font-weight:900;
+    background:linear-gradient(180deg,#7cc0ff,#2b6fd6);-webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 4px 0 rgba(0,0,0,.35)}
+  .overlay h1 small{display:block;font-size:.42em;letter-spacing:8px;color:var(--gold);-webkit-text-fill-color:var(--gold);margin-top:6px}
+  .overlay p{color:var(--ink2);max-width:34ch;font-size:clamp(13px,3.2vw,16px);line-height:1.5}
+  .btns{display:flex;flex-direction:column;gap:10px;width:min(260px,80%)}
+  button.menu{font:inherit;font-weight:700;letter-spacing:1px;cursor:pointer;color:#07101f;padding:12px 18px;border:none;
+    border-radius:8px;background:var(--gold);box-shadow:0 4px 0 #b8922f;transition:transform .08s,box-shadow .08s}
+  button.menu:hover{transform:translateY(-1px)}
+  button.menu:active{transform:translateY(3px);box-shadow:0 1px 0 #b8922f}
+  button.menu.alt{background:#2a3b5c;color:var(--ink);box-shadow:0 4px 0 #16233d}
+  .credits{font-size:12px;color:var(--ink2);line-height:1.7}.credits b{color:var(--blue)}
+  kbd{background:#22304c;border:1px solid #3a4d72;border-bottom-width:3px;border-radius:5px;padding:2px 8px;font-size:.85em;color:var(--ink)}
+  .how{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;align-items:center;text-align:left;font-size:14px;color:var(--ink2)}
+  .stat-line{color:var(--gold);font-weight:700;font-size:clamp(15px,4vw,20px)}
+  #touch{position:absolute;inset:0;display:none;pointer-events:none}
+  .tbtn{position:absolute;pointer-events:auto;width:64px;height:64px;border-radius:50%;background:rgba(74,163,255,.18);
+    border:2px solid rgba(74,163,255,.5);color:#dceaff;font-size:26px;display:flex;align-items:center;justify-content:center;
+    user-select:none;-webkit-user-select:none;touch-action:none}
+  .tbtn:active{background:rgba(74,163,255,.4)}
+  #t-left{left:14px;bottom:80px}#t-right{left:88px;bottom:80px}#t-up{left:51px;bottom:150px}#t-down{left:51px;bottom:14px}
+  #t-jump{right:20px;bottom:80px;background:rgba(242,193,78,.25);border-color:rgba(242,193,78,.6);color:#fff2cf}
+  body.touch #touch{display:block}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game" width="960" height="540"></canvas>
+  <button id="fsbtn" title="Tela cheia" aria-label="Tela cheia">⛶</button>
+
+  <div id="loading" class="overlay show"><h1 style="font-size:30px">CARREGANDO…</h1></div>
+
+  <div id="menu" class="overlay">
+    <h1>ESCRITÓRIO<br>KONG<small>DESAFIO SENAI</small></h1>
+    <p>Entre no prédio. Suba pelos setores. Escape do Chefão furioso.</p>
+    <div class="btns">
+      <button class="menu" data-act="play">JOGAR</button>
+      <button class="menu alt" data-act="how">COMO JOGAR</button>
+      <button class="menu alt" data-act="credits">CRÉDITOS</button>
+    </div>
+  </div>
+
+  <div id="how" class="overlay">
+    <h1 style="font-size:32px">COMO JOGAR</h1>
+    <div class="how">
+      <kbd>A</kbd><span>ou <kbd>←</kbd> — andar à esquerda</span>
+      <kbd>D</kbd><span>ou <kbd>→</kbd> — andar à direita</span>
+      <kbd>W</kbd><span>ou <kbd>↑</kbd> — subir escada / pular</span>
+      <kbd>S</kbd><span>ou <kbd>↓</kbd> — descer escada</span>
+      <kbd>Espaço</kbd><span>— pular</span>
+      <kbd>Esc</kbd><span>— pausar</span>
+    </div>
+    <p>Suba até a <b style="color:var(--gold)">bandeira</b> no topo desviando dos caixotes. Pegue as <b style="color:var(--gold)">moedas</b> e pule por cima dos caixotes pra pontuar!</p>
+    <div class="btns"><button class="menu" data-act="back">VOLTAR</button></div>
+  </div>
+
+  <div id="credits" class="overlay">
+    <h1 style="font-size:32px">CRÉDITOS</h1>
+    <p class="credits">
+      <b>Escritório Kong</b> — Projeto Mundo SENAI<br>Jogo de plataforma 2D.<br><br>
+      Desenvolvido pela equipe do <b>SENAI Caçador</b><br><br>
+      Sprites: <b>Kenney — Pixel Platformer</b><br>(licença CC0, uso livre)
+    </p>
+    <div class="btns"><button class="menu" data-act="back">VOLTAR</button></div>
+  </div>
+
+  <div id="pause" class="overlay">
+    <h1 style="font-size:36px">PAUSADO</h1>
+    <div class="btns">
+      <button class="menu" data-act="resume">CONTINUAR</button>
+      <button class="menu alt" data-act="restart">REINICIAR FASE</button>
+      <button class="menu alt" data-act="menu">MENU PRINCIPAL</button>
+    </div>
+  </div>
+
+  <div id="over" class="overlay">
+    <h1 style="font-size:40px;background:linear-gradient(180deg,#ff8a8a,#c62828);-webkit-background-clip:text;background-clip:text">GAME OVER</h1>
+    <p class="stat-line" id="over-score">Pontuação: 0</p>
+    <div class="btns">
+      <button class="menu" data-act="restart">TENTAR NOVAMENTE</button>
+      <button class="menu alt" data-act="menu">MENU</button>
+    </div>
+  </div>
+
+  <div id="win" class="overlay">
+    <h1 style="font-size:36px;background:linear-gradient(180deg,#8fffc0,#1fa864);-webkit-background-clip:text;background-clip:text">FASE CONCLUÍDA!</h1>
+    <p class="stat-line" id="win-score">Pontuação: 0</p>
+    <p id="win-detail" style="color:var(--ink2)"></p>
+    <div class="btns">
+      <button class="menu" data-act="restart">JOGAR DE NOVO</button>
+      <button class="menu alt" data-act="menu">MENU</button>
+    </div>
+  </div>
+
+  <div id="touch">
+    <div class="tbtn" id="t-left">◀</div><div class="tbtn" id="t-right">▶</div>
+    <div class="tbtn" id="t-up">▲</div><div class="tbtn" id="t-down">▼</div><div class="tbtn" id="t-jump">⤒</div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* =====================================================================
+   ESCRITÓRIO KONG — Projeto Mundo SENAI
+   Plataforma 2D estilo Donkey Kong com sprites reais (Kenney, CC0).
+   1.CONFIG 2.ASSETS 3.NÍVEL 4.INPUT 5.ESTADO 6.FÍSICA 7.RENDER 8.LOOP
+   ===================================================================== */
+
+/* ---------- 1. CONFIG ---------- */
+const V = { W:960, H:540 };
+const cv = document.getElementById('game');
+const ctx = cv.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+const PHYS = { gravity:1400, moveSpeed:180, climbSpeed:125, jumpV:-430, obstSpeed:150 };
+
+/* ---------- 2. ASSETS (sprites Kenney CC0) ---------- */
+const IMG = {};
+const FILES = { idle:'player_idle.png', run1:'player_run1.png', run2:'player_run2.png', run3:'player_run3.png', run4:'player_run4.png',
+                boss0:'boss_idle.png', boss1:'boss_throw.png',
+                plat:'floor.png', ladder:'ladder3.png', crate:'folder.png', coin:'coin.png', heart:'heart.png', flag:'flag.png',
+                desk1:'desk1.png', desk2:'desk2.png', desk3:'desk3.png', plant:'plant.png', cooler:'cooler.png',
+                floor2:'floor2.png', stall:'stall.png', sink:'sink.png', trash:'trash.png',
+                bgBanheiro:'bg_banheiro.png', bgTi:'bg_ti.png', bgFinanceiro:'bg_financeiro.png', bgMarketing:'bg_marketing.png' };
+let assetsReady = false;
+function preload(done){
+  let n = 0, total = Object.keys(FILES).length;
+  for (const k in FILES){
+    const im = new Image();
+    im.onload = im.onerror = () => { if (++n === total){ assetsReady = true; done(); } };
+    im.src = 'assets/' + FILES[k];
+    IMG[k] = im;
+  }
+}
+
+/* ---------- 3. NÍVEL ---------- */
+const T = 26;              // espessura visual da prateleira
+const WORLD_H = 1160;      // altura total do prédio (a câmera rola dentro dele)
+const platforms = [
+  { x1:0,  x2:960, y:1095, dir:+1, name:'RECEPÇÃO' },
+  { x1:60, x2:960, y:940,  dir:-1, name:'BANHEIRO' },
+  { x1:0,  x2:900, y:785,  dir:+1, name:'T.I.' },
+  { x1:60, x2:960, y:630,  dir:-1, name:'FINANCEIRO' },
+  { x1:0,  x2:900, y:475,  dir:+1, name:'MARKETING' },
+  { x1:60, x2:960, y:320,  dir:-1, name:'DIRETORIA' },
+];
+const ladders = [
+  { x:150, yTop:940, yBottom:1095 },
+  { x:810, yTop:785, yBottom:940 },
+  { x:150, yTop:630, yBottom:785 },
+  { x:810, yTop:475, yBottom:630 },
+  { x:150, yTop:320, yBottom:475 },
+];
+const TOP = platforms.length-1;
+const GOAL_X = 810;
+const boss = { x:880, y:320 };
+let camY = 0, camX = 0;
+const ZOOM = 1.35;                // quanto maior, mais perto a câmera fica
+const VIEW_W = V.W/ZOOM, VIEW_H = V.H/ZOOM;
+
+/* ---------- 4. INPUT ---------- */
+const keys = { left:false, right:false, up:false, down:false, jump:false, jumpEdge:false };
+const keyMap = { ArrowLeft:'left', KeyA:'left', ArrowRight:'right', KeyD:'right',
+                 ArrowUp:'up', KeyW:'up', ArrowDown:'down', KeyS:'down', Space:'jump' };
+addEventListener('keydown', e => {
+  if (e.code === 'Escape') { togglePause(); return; }
+  const k = keyMap[e.code];
+  if (k) { if (k==='jump' && !keys.jump) keys.jumpEdge = true; keys[k] = true; e.preventDefault(); }
+});
+addEventListener('keyup', e => { const k = keyMap[e.code]; if (k) keys[k] = false; });
+if ('ontouchstart' in window) document.body.classList.add('touch');
+function bindTouch(id, key){
+  const el = document.getElementById(id);
+  el.addEventListener('touchstart', e => { e.preventDefault(); keys[key]=true; if(key==='jump') keys.jumpEdge=true; });
+  el.addEventListener('touchend',  e => { e.preventDefault(); keys[key]=false; });
+  el.addEventListener('touchcancel', e => { keys[key]=false; });
+}
+['t-left,left','t-right,right','t-up,up','t-down,down','t-jump,jump'].forEach(s=>{const [i,k]=s.split(',');bindTouch(i,k);});
+
+/* ---------- 5. ESTADO ---------- */
+const player = { x:90, w:26, h:40, y:0, vy:0, dir:1, grounded:false, climbing:false, ladder:null, invuln:0, walkT:0 };
+let obstacles = [], coins = [];
+let state = 'loading', score = 0, lives = 3, elapsed = 0, spawnT = 0, spawnGap = 1.6, frame = 0;
+
+function resetPlayer(){
+  player.x = 90; player.y = platforms[0].y - player.h;
+  player.vy = 0; player.dir = 1; player.grounded = true; player.climbing = false; player.ladder = null; player.invuln = 0.9;
+  updateCamera(true);
+}
+const clamp = (v,a,b) => v<a?a:(v>b?b:v);
+function updateCamera(snap){
+  const targetY = clamp(player.y + player.h/2 - VIEW_H*0.55, 0, WORLD_H - VIEW_H);
+  const targetX = clamp(player.x + player.w/2 - VIEW_W*0.5, 0, V.W - VIEW_W);
+  camY = snap ? targetY : camY + (targetY - camY)*0.12;
+  camX = snap ? targetX : camX + (targetX - camX)*0.12;
+}
+function buildCoins(){
+  coins = [];
+  for (let i=0; i<platforms.length-1; i++){
+    const p = platforms[i];
+    for (let x=p.x1+90; x<p.x2-50; x+=125){
+      let skip=false; for (const L of ladders) if (Math.abs(L.x-x)<44) skip=true;
+      if (!skip) coins.push({ x, y:p.y-52, taken:false });
+    }
+  }
+}
+function startGame(){
+  score=0; lives=3; elapsed=0; spawnT=0; spawnGap=1.6; obstacles=[];
+  buildCoins(); resetPlayer(); setState('playing');
+}
+
+/* ---------- 6. FÍSICA ---------- */
+const feetY = () => player.y + player.h;
+const centerX = () => player.x + player.w/2;
+function nearLadder(mode){
+  for (const L of ladders){
+    if (Math.abs(L.x - centerX()) > 17) continue;
+    if (mode==='up'   && Math.abs(feetY() - L.yBottom) < 10) return L;
+    if (mode==='down' && Math.abs(feetY() - L.yTop)    < 10) return L;
+  }
+  return null;
+}
+function updatePlayer(dt){
+  if (player.invuln > 0) player.invuln -= dt;
+  // escada
+  if (!player.climbing){
+    if (keys.up){ const L=nearLadder('up'); if(L){player.climbing=true;player.ladder=L;} }
+    if (keys.down){ const L=nearLadder('down'); if(L){player.climbing=true;player.ladder=L;} }
+  }
+  if (player.climbing){
+    const L = player.ladder;
+    player.x = L.x - player.w/2;
+    let vy = keys.up ? -PHYS.climbSpeed : keys.down ? PHYS.climbSpeed : 0;
+    player.y += vy*dt; player.walkT += Math.abs(vy)*dt;
+    if (feetY() <= L.yTop){ player.y=L.yTop-player.h; player.climbing=false; player.grounded=true; player.vy=0; }
+    else if (feetY() >= L.yBottom){ player.y=L.yBottom-player.h; player.climbing=false; player.grounded=true; player.vy=0; }
+    if (keys.jumpEdge){ player.climbing=false; player.vy=PHYS.jumpV*0.7; player.grounded=false; }
+    keys.jumpEdge=false; return;
+  }
+  // horizontal
+  let vx = 0;
+  if (keys.left){ vx=-PHYS.moveSpeed; player.dir=-1; }
+  if (keys.right){ vx=PHYS.moveSpeed; player.dir=1; }
+  player.x += vx*dt; player.x = Math.max(0, Math.min(V.W-player.w, player.x));
+  if (vx!==0 && player.grounded) player.walkT += Math.abs(vx)*dt; else if (player.grounded) player.walkT=0;
+  // pulo
+  if ((keys.jumpEdge || (keys.up && !nearLadder('up'))) && player.grounded){ player.vy=PHYS.jumpV; player.grounded=false; }
+  keys.jumpEdge=false;
+  // gravidade + colisão
+  const prevFeet = feetY();
+  player.vy += PHYS.gravity*dt; player.y += player.vy*dt; player.grounded=false;
+  const nf = feetY();
+  for (const p of platforms){
+    if (player.vy>=0 && prevFeet<=p.y+2 && nf>=p.y && centerX()>p.x1 && centerX()<p.x2){
+      player.y=p.y-player.h; player.vy=0; player.grounded=true;
+    }
+  }
+  if (feetY() > WORLD_H+60) hit();
+  // moedas
+  for (const c of coins){
+    if (!c.taken && Math.abs(centerX()-c.x)<24 && Math.abs((player.y+player.h/2)-c.y)<34){ c.taken=true; score+=100; }
+  }
+  // vitória
+  if (player.grounded && Math.abs(feetY()-platforms[TOP].y)<4 && centerX()>GOAL_X) winGame();
+}
+function spawnObstacle(){
+  const p = platforms[TOP];
+  obstacles.push({ x:boss.x+40*p.dir, y:p.y-14, r:14, vx:PHYS.obstSpeed*p.dir, vy:0, plat:p, scored:false, spin:0 });
+}
+function updateObstacles(dt){
+  for (const o of obstacles){
+    o.spin += o.vx*dt*0.035;
+    if (o.plat && o.x>o.plat.x1 && o.x<o.plat.x2){
+      o.x += o.vx*dt;                    // só desliza enquanto está sobre uma prateleira
+      o.y=o.plat.y-o.r; o.vy=0; o.vx=o.plat.dir*PHYS.obstSpeed;
+    } else {
+      o.plat=null; o.x += o.vx*dt*0.15;  // no ar, cai quase reto (bem pouco arrasto horizontal)
+      o.vy+=PHYS.gravity*dt; const pf=o.y+o.r; o.y+=o.vy*dt; const nf=o.y+o.r;
+      for (const p of platforms){
+        if (o.vy>0 && pf<=p.y+2 && nf>=p.y && o.x>p.x1 && o.x<p.x2){ o.plat=p; o.y=p.y-o.r; o.vy=0; o.vx=p.dir*PHYS.obstSpeed; }
+      }
+    }
+    if (!o.scored && !player.grounded && !player.climbing && Math.abs(centerX()-o.x)<30 && (o.y-o.r)>feetY()-6){ o.scored=true; score+=100; }
+    if (player.invuln<=0 && o.x+o.r>player.x && o.x-o.r<player.x+player.w && o.y+o.r>player.y && o.y-o.r<player.y+player.h) hit();
+  }
+  obstacles = obstacles.filter(o => o.y<WORLD_H+40 && o.x>-30 && o.x<V.W+30);
+}
+function hit(){
+  if (player.invuln>0) return;
+  lives--;
+  if (lives<=0){ setState('over'); document.getElementById('over-score').textContent='Pontuação: '+score; }
+  else resetPlayer();
+}
+function winGame(){
+  const timeBonus = Math.max(0, 2000-Math.floor(elapsed)*20), lifeBonus = lives*500;
+  score += 1000 + timeBonus + lifeBonus;
+  document.getElementById('win-score').textContent = 'Pontuação: '+score;
+  document.getElementById('win-detail').textContent = `Tempo ${Math.floor(elapsed)}s · Bônus +${timeBonus} · Vidas ${lives} (+${lifeBonus})`;
+  setState('win');
+}
+
+/* ---------- 7. RENDER ---------- */
+function px(x,y,w,h,c){ ctx.fillStyle=c; ctx.fillRect(x|0,y|0,w|0,h|0); }
+function spr(img, x, y, w, h, flip){
+  if (flip){ ctx.save(); ctx.translate((x+w)|0, y|0); ctx.scale(-1,1); ctx.drawImage(img,0,0,w,h); ctx.restore(); }
+  else ctx.drawImage(img, x|0, y|0, w, h);
+}
+function txt(t,x,y,c,size,align){
+  ctx.font='bold '+size+'px "Segoe UI",sans-serif'; ctx.textAlign=align||'left';
+  ctx.fillStyle='rgba(8,6,2,.6)'; ctx.fillText(t,x+1,y+1);
+  ctx.fillStyle=c; ctx.fillText(t,x,y); ctx.textAlign='left';
+}
+function drawBackground(){
+  // céu visto pela vidraça
+  const g=ctx.createLinearGradient(0,0,0,V.H);
+  g.addColorStop(0,'#7ec8ef'); g.addColorStop(.55,'#a9dcf3'); g.addColorStop(1,'#d5eefb');
+  ctx.fillStyle=g; ctx.fillRect(0,0,V.W,V.H);
+  // skyline
+  let x=-6,i=2;
+  while(x<V.W){
+    const w=26+(i*13)%30, h=90+(i*47)%170, c=['#6f9cc4','#5b86b0','#4a6f96'][i%3];
+    ctx.fillStyle=c; ctx.fillRect(x,V.H-h,w,h);
+    ctx.fillStyle='rgba(255,255,255,.30)';
+    for(let wy=V.H-h+8; wy<V.H-6; wy+=12) for(let wx=x+4; wx<x+w-4; wx+=9) ctx.fillRect(wx,wy,4,5);
+    x+=w+8; i++;
+  }
+  ctx.fillStyle='rgba(255,255,255,.05)'; ctx.fillRect(0,0,V.W,V.H);
+  // caixilhos da vidraça
+  ctx.fillStyle='rgba(40,55,80,.20)';
+  for(let k=1;k<6;k++) ctx.fillRect(V.W*k/6-1,0,3,V.H);
+}
+// fundos reais (fotos/artes enviadas pelo usuário) por andar. nw/nh = dimensão original.
+// Escala ÚNICA pras 4 imagens (155/724 — a altura das 3 no formato novo), calibrada pra
+// porta ficar do tamanho de porta de verdade perto do personagem. Imagens mais altas que
+// 724 (Marketing) são recortadas no centro, mantendo a mesma escala — nada é esticado.
+const ROOM_BG = {
+  'BANHEIRO':   { key:'bgBanheiro',   nw:2172, sy:0,   sh:724 },
+  'T.I.':       { key:'bgTi',         nw:2172, sy:0,   sh:724 },
+  'FINANCEIRO': { key:'bgFinanceiro', nw:2172, sy:0,   sh:724 },
+  'MARKETING':  { key:'bgMarketing',  nw:1774, sy:200, sh:395 }, // essa imagem tem barra preta em cima/embaixo — recorte manual pra pular
+};
+const ROOM_H = 155; // altura da "sala" = espaço entre andares
+function drawRoomBg(p){
+  const rb = ROOM_BG[p.name]; if (!rb) return false;
+  const scale = ROOM_H/rb.sh;
+  const sy = rb.sy, sh = rb.sh;
+  const tileW = rb.nw*scale, artTop = p.y-ROOM_H;
+  for (let x=0; x<V.W; x+=tileW){
+    const drawW = Math.min(tileW, V.W-x), srcW = drawW/scale;
+    ctx.drawImage(IMG[rb.key], 0, sy, srcW, sh, x, artTop, drawW, ROOM_H);
+  }
+  return true;
+}
+function drawShelves(){
+  for(const p of platforms){
+    const hasBg = drawRoomBg(p);
+    if (!hasBg){                                              // andares sem foto: piso genérico
+      for(let x=p.x1; x<p.x2; x+=32){ const w=Math.min(32,p.x2-x); spr(IMG.plat,x,p.y,w,T); }
+    }
+    ctx.fillStyle='rgba(0,0,0,.18)'; ctx.fillRect(p.x1,p.y+T,p.x2-p.x1,3); // sombra sob o piso
+    if (!hasBg){ // etiqueta do setor (só quando não há foto real com o nome já na arte)
+      ctx.font='bold 11px "Segoe UI",sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle='rgba(255,255,255,.85)'; ctx.fillText(p.name, p.x1+10, p.y+17);
+    }
+  }
+}
+// funcionários trabalhando + plantas (só nos andares SEM foto real, pra não duplicar a arte)
+function drawOfficeDecor(){
+  const desks=[IMG.desk1,IMG.desk2,IMG.desk3];
+  for(let i=0;i<platforms.length-1;i++){
+    const p=platforms[i];
+    if (ROOM_BG[p.name]) continue; // a foto de fundo já traz mesas/portas/etc.
+    let n=0;
+    for(let x=p.x1+50; x<p.x2-60; x+=160){
+      let skip=false; for(const L of ladders) if(Math.abs(L.x-(x+22))<62) skip=true;
+      if(skip){ n++; continue; }
+      const kind=(x+i*7)%11;
+      if(kind===3) spr(IMG.plant, x+16, p.y-30, 18, 30);
+      else if(kind===8) spr(IMG.cooler, x+18, p.y-32, 16, 32);
+      else spr(desks[(i+n)%3], x, p.y-36, 44, 36);
+      n++;
+    }
+  }
+}
+function drawLadders(){
+  for(const L of ladders){
+    const totalH = L.yBottom - L.yTop;               // termina exatamente no piso de baixo, sem sobrar
+    for (let y=0; y<totalH; y+=32){
+      const segH = Math.min(32, totalH-y);
+      ctx.drawImage(IMG.ladder, 0, 0, 26, segH, (L.x-13)|0, (L.yTop+y)|0, 26, segH);
+    }
+  }
+}
+function drawCoins(){
+  const bob=Math.sin(frame*0.12)*2;
+  for(const c of coins){ if(!c.taken) spr(IMG.coin, c.x-14, c.y-14+bob, 28, 28); }
+}
+function drawFlag(){ spr(IMG.flag, GOAL_X-17, platforms[TOP].y-44, 34, 44); }
+function drawPlayer(){
+  if (player.invuln>0 && Math.floor(frame/4)%2===0) return;
+  let img = IMG.idle;
+  if (player.climbing) img = (Math.floor(player.walkT/20)%2) ? IMG.run1 : IMG.run3;
+  else if (player.walkT>0 && player.grounded) img = [IMG.run1,IMG.run2,IMG.run3,IMG.run4][Math.floor(player.walkT/16)%4];
+  else if (!player.grounded) img = IMG.run2;   // no ar
+  const PW=34, PH=51, dx=player.x+player.w/2-PW/2, dy=player.y+player.h-PH+3;
+  spr(img, dx, dy, PW, PH, player.dir<0);
+}
+function drawBoss(){
+  const throwing = spawnT>spawnGap-0.28, BS=92;
+  spr(throwing?IMG.boss1:IMG.boss0, boss.x-BS/2, platforms[TOP].y-BS+2, BS, BS, true);
+  // balão "CHEFÃO!"
+  ctx.font='bold 14px "Segoe UI",sans-serif'; ctx.textAlign='center';
+  const w=ctx.measureText('CHEFÃO!').width+18, bx=boss.x-58, by=platforms[TOP].y-74;
+  ctx.fillStyle='#fff6df'; ctx.fillRect(bx-w/2,by-11,w,20);
+  ctx.fillStyle='#e0c78a'; ctx.fillRect(bx-w/2,by-11,w,2); ctx.fillRect(bx-w/2-3,by+2,8,5);
+  ctx.fillStyle='#e23b3b'; ctx.fillText('CHEFÃO!',bx,by+3); ctx.textAlign='left';
+}
+function drawObstacle(o){
+  ctx.save(); ctx.translate(o.x|0,o.y|0); ctx.rotate(o.spin); ctx.drawImage(IMG.crate,-14,-14,28,28); ctx.restore();
+}
+function drawHUD(){
+  ctx.fillStyle='rgba(12,8,3,.5)'; ctx.fillRect(0,0,V.W,32);
+  txt('1-UP',10,14,'#ff5d5d',12);
+  txt(String(score).padStart(6,'0'),10,28,'#fff',13);
+  spr(IMG.boss0,120,4,24,24);                       // retrato do gerente
+  txt('GERENTE',148,20,'#fff',11);
+  txt('TEMPO '+String(Math.floor(elapsed)).padStart(3,'0'),V.W/2,28,'#fff',11,'center');
+  txt('NÍVEL 1',V.W-12,14,'#f7cf5a',12,'right');
+  for(let i=0;i<lives;i++) spr(IMG.heart, V.W-30-i*24, 12, 22, 22);
+}
+function render(){
+  drawBackground();                          // fundo fixo (não rola)
+  ctx.save(); ctx.scale(ZOOM,ZOOM); ctx.translate(-Math.round(camX), -Math.round(camY));  // câmera com zoom
+  drawShelves();
+  drawOfficeDecor();
+  drawLadders();
+  drawFlag();
+  drawCoins();
+  drawBoss();
+  obstacles.forEach(drawObstacle);
+  drawPlayer();
+  ctx.restore();
+  drawHUD();                                 // HUD fixo por cima
+}
+
+/* ---------- 8. LOOP + TELAS ---------- */
+const overlays = ['loading','menu','how','credits','pause','over','win'];
+const hideAll = () => overlays.forEach(id => document.getElementById(id).classList.remove('show'));
+const show = id => document.getElementById(id).classList.add('show');
+function setState(s){
+  state=s; hideAll();
+  if (s==='menu') show('menu'); else if (s==='paused') show('pause');
+  else if (s==='over') show('over'); else if (s==='win') show('win');
+}
+function togglePause(){ if(state==='playing') setState('paused'); else if(state==='paused') setState('playing'); }
+document.querySelectorAll('button.menu').forEach(b => b.addEventListener('click', () => {
+  const a=b.dataset.act;
+  if (a==='play'||a==='restart') startGame();
+  else if (a==='how'){ hideAll(); show('how'); }
+  else if (a==='credits'){ hideAll(); show('credits'); }
+  else if (a==='back'){ hideAll(); show('menu'); }
+  else if (a==='resume') setState('playing');
+  else if (a==='menu') setState('menu');
+}));
+// botão de tela cheia
+document.getElementById('fsbtn').addEventListener('click', () => {
+  const el = document.getElementById('wrap');
+  if (document.fullscreenElement) document.exitFullscreen();
+  else if (el.requestFullscreen) el.requestFullscreen();
+});
+
+let last = performance.now();
+function loop(now){
+  let dt=(now-last)/1000; last=now; if(dt>0.05) dt=0.05; frame++;
+  if (state==='playing'){
+    elapsed+=dt; spawnT+=dt;
+    if (spawnT>=spawnGap){ spawnT=0; spawnObstacle(); spawnGap=Math.max(0.9, spawnGap*0.985); }
+    updatePlayer(dt); updateObstacles(dt); updateCamera(false);
+  }
+  if (assetsReady) render();
+  requestAnimationFrame(loop);
+}
+preload(() => { resetPlayer(); setState('menu'); });
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

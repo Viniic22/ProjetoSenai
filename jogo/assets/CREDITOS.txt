@@ -1,0 +1,2 @@
+﻿Sprites: Kenney - Pixel Platformer (https://kenney.nl/assets/pixel-platformer)
+Licenca: Creative Commons Zero (CC0) - dominio publico, uso livre inclusive comercial.

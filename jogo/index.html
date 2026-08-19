@@ -43,6 +43,13 @@
   #t-left{left:14px;bottom:80px}#t-right{left:88px;bottom:80px}#t-up{left:51px;bottom:150px}#t-down{left:51px;bottom:14px}
   #t-jump{right:20px;bottom:80px;background:rgba(242,193,78,.25);border-color:rgba(242,193,78,.6);color:#fff2cf}
   body.touch #touch{display:block}
+  #dlg{position:absolute;left:0;right:0;bottom:0;display:none;padding:16px;z-index:6;cursor:pointer}
+  #dlg.show{display:block}
+  .dlg-box{max-width:680px;margin:0 auto;background:#3a2f1f;border:3px solid #f0d9a0;border-radius:8px;
+    padding:12px 18px;box-shadow:0 6px 0 rgba(0,0,0,.4)}
+  .dlg-name{font-weight:900;letter-spacing:1px;color:#ffcf5a;font-size:12px;margin-bottom:6px;text-transform:uppercase}
+  .dlg-line{color:#fff6df;font-size:clamp(13px,2.6vw,15px);line-height:1.5}
+  .dlg-hint{margin-top:8px;text-align:right;color:#c9b788;font-size:10px;letter-spacing:.5px}
 </style>
 </head>
 <body>
@@ -54,7 +61,7 @@
 
   <div id="menu" class="overlay">
     <h1>ESCRITÓRIO<br>KONG<small>DESAFIO SENAI</small></h1>
-    <p>Entre no prédio. Suba pelos setores. Escape do Chefão furioso.</p>
+    <p>O prédio está em caos. Resolva as tarefas pendentes, ajude os setores e não deixe o Chefão estourar de estresse.</p>
     <div class="btns">
       <button class="menu" data-act="play">JOGAR</button>
       <button class="menu alt" data-act="how">COMO JOGAR</button>
@@ -72,7 +79,7 @@
       <kbd>Espaço</kbd><span>— pular</span>
       <kbd>Esc</kbd><span>— pausar</span>
     </div>
-    <p>Suba até a <b style="color:var(--gold)">bandeira</b> no topo desviando dos caixotes. Pegue as <b style="color:var(--gold)">moedas</b> e pule por cima dos caixotes pra pontuar!</p>
+    <p>Suba até a <b style="color:var(--gold)">bandeira</b> no topo desviando das <b style="color:var(--gold)">tarefas pendentes</b> que o Chefão joga. Pegue as <b style="color:var(--gold)">moedas</b>, converse com os colegas de cada setor e mantenha o <b style="color:var(--gold)">Estresse do Chefe</b> baixo!</p>
     <div class="btns"><button class="menu" data-act="back">VOLTAR</button></div>
   </div>
 
@@ -114,6 +121,14 @@
     </div>
   </div>
 
+  <div id="dlg">
+    <div class="dlg-box">
+      <div class="dlg-name" id="dlg-name">NOME</div>
+      <div class="dlg-line" id="dlg-line">Fala…</div>
+      <div class="dlg-hint">ESPAÇO ou clique para continuar ▶</div>
+    </div>
+  </div>
+
   <div id="touch">
     <div class="tbtn" id="t-left">◀</div><div class="tbtn" id="t-right">▶</div>
     <div class="tbtn" id="t-up">▲</div><div class="tbtn" id="t-down">▼</div><div class="tbtn" id="t-jump">⤒</div>
@@ -133,16 +148,19 @@ const V = { W:960, H:540 };
 const cv = document.getElementById('game');
 const ctx = cv.getContext('2d');
 ctx.imageSmoothingEnabled = false;
-const PHYS = { gravity:1400, moveSpeed:180, climbSpeed:125, jumpV:-430, obstSpeed:150 };
+const PHYS = { gravity:1400, moveSpeed:180, climbSpeed:125, jumpV:-430, obstSpeed:130 };
+const BOSS_ASPECT = 954/589; // largura/altura do sprite do chefão (evita esticar)
 
 /* ---------- 2. ASSETS (sprites Kenney CC0) ---------- */
 const IMG = {};
 const FILES = { idle:'player_idle.png', run1:'player_run1.png', run2:'player_run2.png', run3:'player_run3.png', run4:'player_run4.png',
+                climb1:'player_climb1.png', climb2:'player_climb2.png', climb3:'player_climb3.png', climb4:'player_climb4.png',
                 boss0:'boss_idle.png', boss1:'boss_throw.png',
                 plat:'floor.png', ladder:'ladder3.png', crate:'folder.png', coin:'coin.png', heart:'heart.png', flag:'flag.png',
                 desk1:'desk1.png', desk2:'desk2.png', desk3:'desk3.png', plant:'plant.png', cooler:'cooler.png',
                 floor2:'floor2.png', stall:'stall.png', sink:'sink.png', trash:'trash.png',
-                bgBanheiro:'bg_banheiro.png', bgTi:'bg_ti.png', bgFinanceiro:'bg_financeiro.png', bgMarketing:'bg_marketing.png' };
+                bgBanheiro:'bg_banheiro.png', bgTi:'bg_ti.png', bgFinanceiro:'bg_financeiro.png', bgMarketing:'bg_marketing.png',
+                bgRecepcao:'bg_recepcao.png', bgDiretoria:'bg_diretoria.png' };
 let assetsReady = false;
 function preload(done){
   let n = 0, total = Object.keys(FILES).length;
@@ -173,8 +191,31 @@ const ladders = [
   { x:150, yTop:320, yBottom:475 },
 ];
 const TOP = platforms.length-1;
-const GOAL_X = 810;
-const boss = { x:880, y:320 };
+const GOAL_X = 150;               // longe da escada de entrada (x:810) — cruza a zona do chefão pra vencer
+const boss = { x:550, y:320 };
+
+/* diálogos curtos por setor — tocam uma vez, na primeira vez que o jogador pisa no andar */
+const DIALOGUES = {
+  'RECEPÇÃO':   { name:'ANA · RECEPÇÃO',    text:'Bom dia! As entregas de hoje estão bagunçando a entrada. Se conseguir desviar sem derrubar nada, já ajuda!' },
+  'BANHEIRO':   { name:'ZÉ · MANUTENÇÃO',   text:'Psiu! Vim trocar uma lâmpada e travei aqui dentro. Não conta pro chefe que eu tava enrolando, hein?' },
+  'T.I.':       { name:'CARLOS · T.I.',     text:'O servidor caiu! Tem um cabo reserva no rack da sala de servidores — pega lá (entre pela porta) e leva até o Financeiro, urgente!' },
+  'FINANCEIRO': { name:'MARIA · FINANCEIRO',text:'As notas fiscais estão atrasadas de novo... sem o sistema do Carlos não dá pra fechar nada. Estou na Contabilidade, entra aí se achar o cabo!' },
+  'MARKETING':  { name:'PEDRO · MARKETING', text:'A campanha vence hoje e ninguém acha o pendrive da apresentação. Que dia!' },
+  'DIRETORIA':  { name:'CHEFÃO',            text:'CHEGA DE ENROLAÇÃO! RESOLVA ESSA BAGUNÇA OU VAI TER GENTE DE MALAS PRONTAS!' },
+};
+const CABLE_PICKUP_DLG    = { name:'VOCÊ', text:'Cabo de rede conseguido! Agora leva até a Contabilidade, no Financeiro.' };
+const CABLE_DELIVERED_DLG = { name:'MARIA · CONTABILIDADE', text:'O CABO! Perfeito, o sistema já está voltando... você salvou o fechamento de hoje. Obrigada!' };
+
+/* ---------- salas internas (porta → cena pequena própria → interação → volta) ---------- */
+const DOORS = [
+  { floorIdx:2, x:500, roomKey:'TI_SERVER' },     // T.I. → Sala de Servidores
+  { floorIdx:3, x:500, roomKey:'FIN_ACCOUNTING' },// Financeiro → Contabilidade
+];
+const ROOMS = {
+  TI_SERVER:      { name:'SALA DE SERVIDORES', width:360, item:'cable', itemX:270 },
+  FIN_ACCOUNTING: { name:'CONTABILIDADE', width:360, npcDeliver:'cable', npcX:270, npcName:'MARIA', npcColor:'#6fb8e0' },
+};
+let inRoom = null, roomPlayerX = 0, roomWalkT = 0, roomFacing = 1, returnPos = null;
 let camY = 0, camX = 0;
 const ZOOM = 1.35;                // quanto maior, mais perto a câmera fica
 const VIEW_W = V.W/ZOOM, VIEW_H = V.H/ZOOM;
@@ -184,11 +225,16 @@ const keys = { left:false, right:false, up:false, down:false, jump:false, jumpEd
 const keyMap = { ArrowLeft:'left', KeyA:'left', ArrowRight:'right', KeyD:'right',
                  ArrowUp:'up', KeyW:'up', ArrowDown:'down', KeyS:'down', Space:'jump' };
 addEventListener('keydown', e => {
+  if (state === 'dialogue'){
+    if (e.code==='Space' || e.code==='Enter'){ hideDialogue(); e.preventDefault(); }
+    return;
+  }
   if (e.code === 'Escape') { togglePause(); return; }
   const k = keyMap[e.code];
   if (k) { if (k==='jump' && !keys.jump) keys.jumpEdge = true; keys[k] = true; e.preventDefault(); }
 });
 addEventListener('keyup', e => { const k = keyMap[e.code]; if (k) keys[k] = false; });
+document.getElementById('dlg').addEventListener('click', hideDialogue);
 if ('ontouchstart' in window) document.body.classList.add('touch');
 function bindTouch(id, key){
   const el = document.getElementById(id);
@@ -200,13 +246,43 @@ function bindTouch(id, key){
 
 /* ---------- 5. ESTADO ---------- */
 const player = { x:90, w:26, h:40, y:0, vy:0, dir:1, grounded:false, climbing:false, ladder:null, invuln:0, walkT:0 };
-let obstacles = [], coins = [];
+let obstacles = [], coins = [], javelins = [];
 let state = 'loading', score = 0, lives = 3, elapsed = 0, spawnT = 0, spawnGap = 1.6, frame = 0;
+let javelinT = 0, javelinGap = 1.9, bossVx = -70;
+let throwFlash = 0, javelinFlash = 0;
+let checkpoint = 0;   // índice do andar mais alto já alcançado — ao morrer, volta pra lá, não pro térreo
+let stress = 15;      // 0-100 — Estresse do Chefe: sobe com o tempo/hits, desce ao concluir tarefas
+let seenDialogue = {}, hasCable = false, cableTaken = false, cableDelivered = false;
 
 function resetPlayer(){
-  player.x = 90; player.y = platforms[0].y - player.h;
+  if (checkpoint === 0){ player.x = 90; player.y = platforms[0].y - player.h; }
+  else { const L = ladders[checkpoint-1]; player.x = L.x - player.w/2; player.y = platforms[checkpoint].y - player.h; }
   player.vy = 0; player.dir = 1; player.grounded = true; player.climbing = false; player.ladder = null; player.invuln = 0.9;
   updateCamera(true);
+}
+function updateCheckpoint(){
+  if (!player.grounded) return;
+  for (let i=checkpoint+1; i<platforms.length; i++){
+    if (Math.abs(feetY()-platforms[i].y) < 4){ checkpoint = i; triggerFloorDialogue(platforms[i].name); }
+  }
+}
+let dlgReturnState = 'playing';
+function showDialogue(d){
+  if (state !== 'dialogue') dlgReturnState = state; // guarda se estava no prédio ('playing') ou numa sala ('room')
+  document.getElementById('dlg-name').textContent = d.name;
+  document.getElementById('dlg-line').textContent = d.text;
+  document.getElementById('dlg').classList.add('show');
+  state = 'dialogue';
+}
+function hideDialogue(){
+  document.getElementById('dlg').classList.remove('show');
+  state = dlgReturnState;
+}
+function triggerFloorDialogue(name){
+  if (seenDialogue[name]) return;
+  seenDialogue[name] = true;
+  const d = DIALOGUES[name];
+  if (d) showDialogue(d);
 }
 const clamp = (v,a,b) => v<a?a:(v>b?b:v);
 function updateCamera(snap){
@@ -226,8 +302,11 @@ function buildCoins(){
   }
 }
 function startGame(){
-  score=0; lives=3; elapsed=0; spawnT=0; spawnGap=1.6; obstacles=[];
+  score=0; lives=3; elapsed=0; spawnT=0; spawnGap=1.6; obstacles=[]; checkpoint=0;
+  javelins=[]; javelinT=0; javelinGap=1.9; bossVx=-70; boss.x=550; throwFlash=0; javelinFlash=0;
+  stress=15; seenDialogue={}; hasCable=false; cableTaken=false; cableDelivered=false; inRoom=null;
   buildCoins(); resetPlayer(); setState('playing');
+  triggerFloorDialogue('RECEPÇÃO');
 }
 
 /* ---------- 6. FÍSICA ---------- */
@@ -277,12 +356,45 @@ function updatePlayer(dt){
     }
   }
   if (feetY() > WORLD_H+60) hit();
+  updateCheckpoint();
   // moedas
   for (const c of coins){
-    if (!c.taken && Math.abs(centerX()-c.x)<24 && Math.abs((player.y+player.h/2)-c.y)<34){ c.taken=true; score+=100; }
+    if (!c.taken && Math.abs(centerX()-c.x)<24 && Math.abs((player.y+player.h/2)-c.y)<34){ c.taken=true; score+=100; stress=clamp(stress-2,0,100); }
+  }
+  // portas pra salas internas (entra automaticamente ao encostar, parado no chão)
+  for (const d of DOORS){
+    if (player.grounded && Math.abs(feetY()-platforms[d.floorIdx].y)<4 && Math.abs(centerX()-d.x)<14){
+      enterRoom(d); return;
+    }
   }
   // vitória
-  if (player.grounded && Math.abs(feetY()-platforms[TOP].y)<4 && centerX()>GOAL_X) winGame();
+  if (player.grounded && Math.abs(feetY()-platforms[TOP].y)<4 && centerX()<GOAL_X+40) winGame();
+}
+function enterRoom(d){
+  inRoom = d.roomKey; returnPos = { floorIdx:d.floorIdx, x:player.x };
+  roomPlayerX = 40; roomWalkT = 0; roomFacing = 1;
+  state = 'room';
+}
+function exitRoom(){
+  player.x = returnPos.x; player.y = platforms[returnPos.floorIdx].y - player.h;
+  player.grounded = true; player.climbing = false; player.vy = 0; player.invuln = 0.3;
+  updateCamera(true); inRoom = null; state = 'playing';
+}
+function updateRoomPlayer(dt){
+  const room = ROOMS[inRoom];
+  let vx = 0;
+  if (keys.left){ vx=-PHYS.moveSpeed; roomFacing=-1; }
+  if (keys.right){ vx=PHYS.moveSpeed; roomFacing=1; }
+  roomPlayerX = clamp(roomPlayerX + vx*dt, 10, room.width-10);
+  roomWalkT = vx!==0 ? roomWalkT+Math.abs(vx)*dt : 0;
+  if (room.item==='cable' && !cableTaken && Math.abs(roomPlayerX-room.itemX)<26){
+    cableTaken=true; hasCable=true; showDialogue(CABLE_PICKUP_DLG);
+  }
+  if (room.npcDeliver==='cable' && hasCable && !cableDelivered && Math.abs(roomPlayerX-room.npcX)<28){
+    hasCable=false; cableDelivered=true; score+=500; stress=clamp(stress-25,0,100); showDialogue(CABLE_DELIVERED_DLG);
+  }
+  if (roomPlayerX<=12) exitRoom();
+  keys.jumpEdge = false;
 }
 function spawnObstacle(){
   const p = platforms[TOP];
@@ -301,14 +413,35 @@ function updateObstacles(dt){
         if (o.vy>0 && pf<=p.y+2 && nf>=p.y && o.x>p.x1 && o.x<p.x2){ o.plat=p; o.y=p.y-o.r; o.vy=0; o.vx=p.dir*PHYS.obstSpeed; }
       }
     }
-    if (!o.scored && !player.grounded && !player.climbing && Math.abs(centerX()-o.x)<30 && (o.y-o.r)>feetY()-6){ o.scored=true; score+=100; }
+    if (!o.scored && !player.grounded && !player.climbing && Math.abs(centerX()-o.x)<30 && (o.y-o.r)>feetY()-6){ o.scored=true; score+=100; stress=clamp(stress-3,0,100); }
     if (player.invuln<=0 && o.x+o.r>player.x && o.x-o.r<player.x+player.w && o.y+o.r>player.y && o.y-o.r<player.y+player.h) hit();
   }
   obstacles = obstacles.filter(o => o.y<WORLD_H+40 && o.x>-30 && o.x<V.W+30);
 }
+function bossFightActive(){
+  return player.grounded && !player.climbing && Math.abs(feetY()-platforms[TOP].y)<6;
+}
+function updateBoss(dt){
+  const min=platforms[TOP].x1+280, max=platforms[TOP].x2-60;
+  boss.x += bossVx*dt;
+  if (boss.x<min){ boss.x=min; bossVx=Math.abs(bossVx); }
+  if (boss.x>max){ boss.x=max; bossVx=-Math.abs(bossVx); }
+}
+function spawnJavelin(){
+  const dir = centerX() < boss.x ? -1 : 1;
+  javelins.push({ x:boss.x, y:platforms[TOP].y-14, r:14, vx:dir*170, spin:0, scored:false });
+}
+function updateJavelins(dt){
+  for (const j of javelins){
+    j.x += j.vx*dt; j.spin += j.vx*dt*0.035;
+    if (!j.scored && !player.grounded && !player.climbing && Math.abs(centerX()-j.x)<28 && (j.y-j.r)>feetY()-6){ j.scored=true; score+=100; stress=clamp(stress-3,0,100); }
+    if (player.invuln<=0 && j.x+j.r>player.x && j.x-j.r<player.x+player.w && j.y+j.r>player.y && j.y-j.r<player.y+player.h) hit();
+  }
+  javelins = javelins.filter(j => j.x>-30 && j.x<V.W+30);
+}
 function hit(){
   if (player.invuln>0) return;
-  lives--;
+  lives--; stress=clamp(stress+15,0,100);
   if (lives<=0){ setState('over'); document.getElementById('over-score').textContent='Pontuação: '+score; }
   else resetPlayer();
 }
@@ -359,6 +492,8 @@ const ROOM_BG = {
   'T.I.':       { key:'bgTi',         nw:2172, sy:0,   sh:724 },
   'FINANCEIRO': { key:'bgFinanceiro', nw:2172, sy:0,   sh:724 },
   'MARKETING':  { key:'bgMarketing',  nw:1774, sy:200, sh:395 }, // essa imagem tem barra preta em cima/embaixo — recorte manual pra pular
+  'RECEPÇÃO':   { key:'bgRecepcao',   nw:2120, sy:0,   sh:724 },
+  'DIRETORIA':  { key:'bgDiretoria',  nw:2120, sy:0,   sh:724 },
 };
 const ROOM_H = 155; // altura da "sala" = espaço entre andares
 function drawRoomBg(p){
@@ -371,6 +506,16 @@ function drawRoomBg(p){
     ctx.drawImage(IMG[rb.key], 0, sy, srcW, sh, x, artTop, drawW, ROOM_H);
   }
   return true;
+}
+function drawGroundBase(){
+  // base do prédio (calçada), preenche o espaço abaixo da Recepção até o fim do mundo —
+  // sem isso, o céu/skyline fixo do drawBackground() aparecia "por baixo do chão".
+  const top = platforms[0].y, bottom = WORLD_H;
+  if (bottom <= top) return;
+  ctx.fillStyle = '#3a4250'; ctx.fillRect(0, top, V.W, bottom-top);
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(0, top, V.W, 5);
+  ctx.fillStyle = 'rgba(255,255,255,.05)';
+  for (let x=6; x<V.W; x+=46) ctx.fillRect(x, top+6, 2, bottom-top-6);
 }
 function drawShelves(){
   for(const p of platforms){
@@ -417,48 +562,111 @@ function drawCoins(){
   for(const c of coins){ if(!c.taken) spr(IMG.coin, c.x-14, c.y-14+bob, 28, 28); }
 }
 function drawFlag(){ spr(IMG.flag, GOAL_X-17, platforms[TOP].y-44, 34, 44); }
+function drawDoors(){
+  for (const d of DOORS){
+    const p = platforms[d.floorIdx];
+    ctx.fillStyle='#2a1f14'; ctx.fillRect(d.x-14, p.y-70, 28, 70);
+    ctx.strokeStyle='#f7cf5a'; ctx.lineWidth=2; ctx.strokeRect(d.x-14, p.y-70, 28, 70);
+    ctx.fillStyle='#f7cf5a'; ctx.beginPath(); ctx.arc(d.x+8, p.y-35, 2, 0, Math.PI*2); ctx.fill();
+    if (Math.abs(centerX()-d.x)<40 && Math.abs(feetY()-p.y)<6) txt('▲', d.x, p.y-78, '#f7cf5a', 14, 'center');
+  }
+}
+function drawGenericNPC(x,y,color,name){
+  ctx.save(); ctx.translate(x|0,y|0);
+  ctx.fillStyle=color;
+  ctx.beginPath(); ctx.arc(0,-42,10,0,Math.PI*2); ctx.fill();
+  ctx.fillRect(-9,-32,18,30);
+  ctx.fillStyle='#222'; ctx.fillRect(-9,-2,7,16); ctx.fillRect(2,-2,7,16);
+  ctx.restore();
+  txt(name, x, y-58, '#ffcf5a', 11, 'center');
+}
+function renderRoom(){
+  const room = ROOMS[inRoom];
+  const g=ctx.createLinearGradient(0,0,0,V.H); g.addColorStop(0,'#2a3040'); g.addColorStop(1,'#181c26');
+  ctx.fillStyle=g; ctx.fillRect(0,0,V.W,V.H);
+  const groundY = V.H-90;
+  ctx.fillStyle='#12151c'; ctx.fillRect(0,groundY,V.W,90);
+  ctx.fillStyle='rgba(255,255,255,.05)';
+  for (let x=0;x<V.W;x+=40) ctx.fillRect(x,groundY,2,90);
+  const scale = V.W/room.width;
+  const rx = x => x*scale;
+  // porta/saída (esquerda)
+  ctx.fillStyle='#3a2f1f'; ctx.fillRect(0,groundY-70,26,70);
+  ctx.strokeStyle='#f7cf5a'; ctx.lineWidth=2; ctx.strokeRect(0,groundY-70,26,70);
+  txt('◀ SAÍDA', 34, groundY-40, '#f7cf5a', 11, 'left');
+  // decor simples (reaproveita mesas já existentes)
+  spr(IMG.desk1, rx(140)-30, groundY-36, 60, 36);
+  spr(IMG.desk3, rx(320)-30, groundY-36, 60, 36);
+  // item da missão
+  if (room.item==='cable' && !cableTaken){
+    const bob=Math.sin(frame*0.1)*3;
+    ctx.save(); ctx.translate(rx(room.itemX), groundY-46+bob);
+    ctx.fillStyle='#222'; ctx.beginPath(); ctx.arc(0,0,14,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#f7cf5a'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(0,0,9,0,Math.PI*1.5); ctx.stroke();
+    ctx.restore();
+    txt('CABO', rx(room.itemX), groundY-66, '#f7cf5a', 10, 'center');
+  }
+  // NPC
+  if (room.npcDeliver) drawGenericNPC(rx(room.npcX), groundY, room.npcColor||'#6fb8e0', room.npcName);
+  // jogador
+  let img=IMG.idle, pw=29;
+  if (roomWalkT>0) img=[IMG.run1,IMG.run2,IMG.run3,IMG.run4][Math.floor(roomWalkT/16)%4];
+  spr(img, rx(roomPlayerX)-pw/2, groundY-51+3, pw, 51, roomFacing<0);
+  // título
+  ctx.fillStyle='rgba(12,8,3,.6)'; ctx.fillRect(0,0,V.W,32);
+  txt(room.name, V.W/2, 20, '#fff', 14, 'center');
+}
 function drawPlayer(){
   if (player.invuln>0 && Math.floor(frame/4)%2===0) return;
-  let img = IMG.idle;
-  if (player.climbing) img = (Math.floor(player.walkT/20)%2) ? IMG.run1 : IMG.run3;
+  let img = IMG.idle, PW=29;
+  if (player.climbing){ img = [IMG.climb1,IMG.climb2,IMG.climb3,IMG.climb4][Math.floor(player.walkT/20)%4]; PW=26; }
   else if (player.walkT>0 && player.grounded) img = [IMG.run1,IMG.run2,IMG.run3,IMG.run4][Math.floor(player.walkT/16)%4];
   else if (!player.grounded) img = IMG.run2;   // no ar
-  const PW=34, PH=51, dx=player.x+player.w/2-PW/2, dy=player.y+player.h-PH+3;
+  const PH=51, dx=player.x+player.w/2-PW/2, dy=player.y+player.h-PH+3;
   spr(img, dx, dy, PW, PH, player.dir<0);
 }
 function drawBoss(){
-  const throwing = spawnT>spawnGap-0.28, BS=92;
-  spr(throwing?IMG.boss1:IMG.boss0, boss.x-BS/2, platforms[TOP].y-BS+2, BS, BS, true);
-  // balão "CHEFÃO!"
-  ctx.font='bold 14px "Segoe UI",sans-serif'; ctx.textAlign='center';
-  const w=ctx.measureText('CHEFÃO!').width+18, bx=boss.x-58, by=platforms[TOP].y-74;
-  ctx.fillStyle='#fff6df'; ctx.fillRect(bx-w/2,by-11,w,20);
-  ctx.fillStyle='#e0c78a'; ctx.fillRect(bx-w/2,by-11,w,2); ctx.fillRect(bx-w/2-3,by+2,8,5);
-  ctx.fillStyle='#e23b3b'; ctx.fillText('CHEFÃO!',bx,by+3); ctx.textAlign='left';
+  const fight = bossFightActive();
+  const throwing = fight ? javelinFlash>0 : throwFlash>0, BH=92, BW=BH*BOSS_ASPECT;
+  spr(throwing?IMG.boss1:IMG.boss0, boss.x-BW/2, platforms[TOP].y-BH+2, BW, BH, bossVx<0);
 }
 function drawObstacle(o){
   ctx.save(); ctx.translate(o.x|0,o.y|0); ctx.rotate(o.spin); ctx.drawImage(IMG.crate,-14,-14,28,28); ctx.restore();
 }
+function drawJavelin(j){
+  ctx.save(); ctx.translate(j.x|0,j.y|0); ctx.rotate(j.spin); ctx.drawImage(IMG.crate,-13,-13,26,26); ctx.restore();
+}
 function drawHUD(){
-  ctx.fillStyle='rgba(12,8,3,.5)'; ctx.fillRect(0,0,V.W,32);
+  const HUD_H = 40;
+  ctx.fillStyle='rgba(12,8,3,.55)'; ctx.fillRect(0,0,V.W,HUD_H);
   txt('1-UP',10,14,'#ff5d5d',12);
   txt(String(score).padStart(6,'0'),10,28,'#fff',13);
-  spr(IMG.boss0,120,4,24,24);                       // retrato do gerente
+  ctx.drawImage(IMG.boss0, 376,0,220,220, 120,4,24,24); // retrato (recorte do rosto, sem esticar)
   txt('GERENTE',148,20,'#fff',11);
-  txt('TEMPO '+String(Math.floor(elapsed)).padStart(3,'0'),V.W/2,28,'#fff',11,'center');
+  txt('TEMPO '+String(Math.floor(elapsed)).padStart(3,'0'),V.W/2,20,'#fff',11,'center');
   txt('NÍVEL 1',V.W-12,14,'#f7cf5a',12,'right');
   for(let i=0;i<lives;i++) spr(IMG.heart, V.W-30-i*24, 12, 22, 22);
+  // barra de estresse do chefe
+  txt('ESTRESSE',8,HUD_H-4,'#ffb0b0',9);
+  const bx=64, by=HUD_H-11, bw=160, bh=7, pct=stress/100;
+  ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(bx-1,by-1,bw+2,bh+2);
+  ctx.fillStyle = pct<0.4 ? '#5ec95e' : pct<0.75 ? '#f0c93a' : '#e34a4a';
+  ctx.fillRect(bx,by,bw*pct,bh);
+  if (hasCable) txt('CARREGANDO: CABO',V.W-10,HUD_H-4,'#8fd6ff',9,'right');
 }
 function render(){
   drawBackground();                          // fundo fixo (não rola)
   ctx.save(); ctx.scale(ZOOM,ZOOM); ctx.translate(-Math.round(camX), -Math.round(camY));  // câmera com zoom
+  drawGroundBase();
   drawShelves();
   drawOfficeDecor();
   drawLadders();
   drawFlag();
   drawCoins();
+  drawDoors();
   drawBoss();
   obstacles.forEach(drawObstacle);
+  javelins.forEach(drawJavelin);
   drawPlayer();
   ctx.restore();
   drawHUD();                                 // HUD fixo por cima
@@ -494,11 +702,24 @@ let last = performance.now();
 function loop(now){
   let dt=(now-last)/1000; last=now; if(dt>0.05) dt=0.05; frame++;
   if (state==='playing'){
-    elapsed+=dt; spawnT+=dt;
-    if (spawnT>=spawnGap){ spawnT=0; spawnObstacle(); spawnGap=Math.max(0.9, spawnGap*0.985); }
-    updatePlayer(dt); updateObstacles(dt); updateCamera(false);
+    elapsed+=dt;
+    stress = clamp(stress + dt*1.1, 0, 100);          // sobe sozinho aos poucos — tarefas acumulando
+    if (throwFlash>0) throwFlash -= dt;
+    if (javelinFlash>0) javelinFlash -= dt;
+    if (bossFightActive()){
+      javelinGap = clamp(1.9 - stress/100*0.9, 1.0, 1.9);   // estresse alto = chefe arremessa mais rápido
+      javelinT+=dt;
+      if (javelinT>=javelinGap && javelins.length<2){ javelinT=0; javelinFlash=0.25; spawnJavelin(); }
+    } else {
+      spawnGap = clamp(1.8 - stress/100*0.9, 0.9, 1.8);     // idem pras tarefas caindo pelo prédio
+      spawnT+=dt;
+      if (spawnT>=spawnGap && obstacles.length<2){ spawnT=0; throwFlash=0.25; spawnObstacle(); }
+    }
+    updatePlayer(dt); updateObstacles(dt); updateJavelins(dt); updateBoss(dt); updateCamera(false);
+  } else if (state==='room'){
+    updateRoomPlayer(dt);
   }
-  if (assetsReady) render();
+  if (assetsReady){ if (state==='room') renderRoom(); else render(); }
   requestAnimationFrame(loop);
 }
 preload(() => { resetPlayer(); setState('menu'); });

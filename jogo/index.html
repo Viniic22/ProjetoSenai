@@ -591,6 +591,21 @@ function drawDoors(){
     if (Math.abs(centerX()-d.x)<40 && Math.abs(feetY()-p.y)<6) txt('ESPAÇO ▶ ENTRAR', d.x, p.y+d.promptY, '#f7cf5a', 13, 'center');
   }
 }
+function drawExitDoor(groundY, cs){
+  // porta de saída com moldura, painéis embutidos e maçaneta — no lugar do retângulo liso antigo
+  const w=26*cs, h=74*cs, x=2*cs, y=groundY-h;
+  ctx.save();
+  ctx.fillStyle='#241a10'; ctx.fillRect(x-3*cs, y-3*cs, w+6*cs, h+3*cs); // moldura
+  const g = ctx.createLinearGradient(x,y,x+w,y);
+  g.addColorStop(0,'#5a3d22'); g.addColorStop(.5,'#6f4a2a'); g.addColorStop(1,'#4a3018');
+  ctx.fillStyle=g; ctx.fillRect(x,y,w,h); // folha da porta
+  ctx.strokeStyle='rgba(0,0,0,.35)'; ctx.lineWidth=Math.max(1,1.4*cs);
+  ctx.strokeRect(x+4*cs, y+6*cs, w-8*cs, h*0.38);
+  ctx.strokeRect(x+4*cs, y+h*0.52, w-8*cs, h*0.38);
+  ctx.fillStyle='#f2c14e'; ctx.beginPath(); ctx.arc(x+w-6*cs, y+h*0.55, 2*cs, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+  txt('◀ SAÍDA', x+w/2+8*cs, y-8*cs, '#f7cf5a', 11*cs, 'center');
+}
 function drawCableIcon(x,y,s){
   // rolo de cabo de rede (azul, enrolado) com conector RJ45 (dourado) saindo pra fora
   ctx.save(); ctx.translate(x,y);
@@ -652,10 +667,7 @@ function renderRoom(){
   // personagem/itens ficam maiores quando a sala tem foto de fundo real (arte em escala bem
   // mais "próxima" que os placeholders genéricos, senão o boneco fica anão perto do cenário)
   const cs = room.bg ? 2.4 : 1;
-  // porta/saída (esquerda) — no mesmo tamanho do personagem, senão fica minúscula perto dele
-  ctx.fillStyle='#3a2f1f'; ctx.fillRect(0,groundY-70*cs,26*cs,70*cs);
-  ctx.strokeStyle='#f7cf5a'; ctx.lineWidth=2; ctx.strokeRect(0,groundY-70*cs,26*cs,70*cs);
-  txt('◀ SAÍDA', 34*cs, groundY-40*cs, '#f7cf5a', 11*cs, 'left');
+  drawExitDoor(groundY, cs);
   // decor simples (reaproveita mesas já existentes) — só quando a sala não tem foto de fundo própria
   if (!room.bg){
     spr(IMG.desk1, rx(140)-30, groundY-36, 60, 36);
@@ -667,18 +679,21 @@ function renderRoom(){
     drawCableIcon(rx(room.itemX), groundY-40*cs+bob, cs);
     txt('CABO', rx(room.itemX), groundY-66*cs, '#f7cf5a', 10*cs, 'center');
   }
-  // NPC
+  // NPC — leve balanço de "respiração" pra não ficar parada feito estátua
+  const npcBob = Math.sin(frame*0.05)*1.6*cs;
   if (room.npcDeliver){
     const port = room.npcPortrait && IMG[room.npcPortrait];
     if (port && port.complete && port.naturalWidth){
       const nh = 62*cs, nw = nh*(port.naturalWidth/port.naturalHeight);
-      spr(port, rx(room.npcX)-nw/2, groundY-nh+4, nw, nh);
+      spr(port, rx(room.npcX)-nw/2, groundY-nh+4+npcBob, nw, nh);
     } else drawGenericNPC(rx(room.npcX), groundY, room.npcColor||'#6fb8e0', room.npcName, cs);
   }
-  // jogador
+  // jogador — mesmo balanço quando parado (só anda de verdade quando roomWalkT>0)
   let img=IMG.idle, pw=29*cs, ph=51*cs;
+  let playerBob = 0;
   if (roomWalkT>0) img=[IMG.run1,IMG.run2,IMG.run3,IMG.run4][Math.floor(roomWalkT/16)%4];
-  spr(img, rx(roomPlayerX)-pw/2, groundY-ph+3, pw, ph, roomFacing<0);
+  else playerBob = Math.sin(frame*0.05+1)*1.6*cs;
+  spr(img, rx(roomPlayerX)-pw/2, groundY-ph+3+playerBob, pw, ph, roomFacing<0);
   // título
   ctx.fillStyle='rgba(12,8,3,.6)'; ctx.fillRect(0,0,V.W,32);
   txt(room.name, V.W/2, 20, '#fff', 14, 'center');

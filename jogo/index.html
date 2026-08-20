@@ -175,10 +175,18 @@ function preload(done){
   let n = 0, total = Object.keys(FILES).length;
   for (const k in FILES){
     const im = new Image();
-    im.onload = im.onerror = () => { if (++n === total){ assetsReady = true; done(); } };
+    im.onload = im.onerror = () => { if (++n === total){ buildBossPortrait(); assetsReady = true; done(); } };
     im.src = 'assets/' + FILES[k];
     IMG[k] = im;
   }
+}
+function buildBossPortrait(){
+  // reaproveita o mesmo recorte de rosto (220x220) já usado no ícone "GERENTE" do HUD,
+  // pra ter um retrato do Chefão sem precisar de um arquivo de imagem novo.
+  const c = document.createElement('canvas'); c.width = 220; c.height = 220;
+  c.getContext('2d').drawImage(IMG.boss0, 376, 0, 220, 220, 0, 0, 220, 220);
+  const im = new Image(); im.src = c.toDataURL();
+  IMG.bossPortrait = im;
 }
 
 /* ---------- 3. NÍVEL ---------- */
@@ -210,7 +218,7 @@ const DIALOGUES = {
   'T.I.':       { name:'CARLOS · T.I.',     text:'O servidor caiu! Tem um cabo reserva no rack da sala de servidores — pega lá (entre pela porta) e leva até o Financeiro, urgente!', portrait:'npcCarlos' },
   'FINANCEIRO': { name:'MARIA · FINANCEIRO',text:'As notas fiscais estão atrasadas de novo... sem o sistema do Carlos não dá pra fechar nada. Estou na Contabilidade, entra aí se achar o cabo!', portrait:'npcMaria' },
   'MARKETING':  { name:'PEDRO · MARKETING', text:'A campanha vence hoje e ninguém acha o pendrive da apresentação. Que dia!', portrait:'npcPedro' },
-  'DIRETORIA':  { name:'CHEFÃO',            text:'CHEGA DE ENROLAÇÃO! RESOLVA ESSA BAGUNÇA OU VAI TER GENTE DE MALAS PRONTAS!' },
+  'DIRETORIA':  { name:'CHEFÃO',            text:'CHEGA DE ENROLAÇÃO! RESOLVA ESSA BAGUNÇA OU VAI TER GENTE DE MALAS PRONTAS!', portrait:'bossPortrait' },
 };
 const CABLE_PICKUP_DLG    = { name:'VOCÊ', text:'Cabo de rede conseguido! Agora leva até a Contabilidade, no Financeiro.' };
 const CABLE_DELIVERED_DLG = { name:'MARIA · CONTABILIDADE', text:'O CABO! Perfeito, o sistema já está voltando... você salvou o fechamento de hoje. Obrigada!', portrait:'npcMaria' };
@@ -285,7 +293,7 @@ function showDialogue(d){
   document.getElementById('dlg-name').textContent = d.name;
   document.getElementById('dlg-line').textContent = d.text;
   const portrait = document.getElementById('dlg-portrait');
-  if (d.portrait && FILES[d.portrait]){ portrait.src = 'assets/'+FILES[d.portrait]; portrait.classList.add('show'); }
+  if (d.portrait && IMG[d.portrait]){ portrait.src = IMG[d.portrait].src; portrait.classList.add('show'); }
   else portrait.classList.remove('show');
   document.getElementById('dlg').classList.add('show');
   state = 'dialogue';

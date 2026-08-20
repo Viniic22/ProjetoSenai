@@ -35,6 +35,11 @@
   kbd{background:#22304c;border:1px solid #3a4d72;border-bottom-width:3px;border-radius:5px;padding:2px 8px;font-size:.85em;color:var(--ink)}
   .how{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;align-items:center;text-align:left;font-size:14px;color:var(--ink2)}
   .stat-line{color:var(--gold);font-weight:700;font-size:clamp(15px,4vw,20px)}
+  .win-quests{list-style:none;text-align:left;font-size:13px;color:var(--ink2);display:flex;flex-direction:column;gap:4px;margin-top:4px}
+  .win-quests li{display:flex;align-items:center;gap:8px}
+  .win-quests .ok{color:#3ddc84;font-weight:900}
+  .win-quests .no{color:#6b7386;font-weight:900}
+  .win-quests li.done{color:var(--ink)}
   #touch{position:absolute;inset:0;display:none;pointer-events:none}
   .tbtn{position:absolute;pointer-events:auto;width:64px;height:64px;border-radius:50%;background:rgba(74,163,255,.18);
     border:2px solid rgba(74,163,255,.5);color:#dceaff;font-size:26px;display:flex;align-items:center;justify-content:center;
@@ -119,6 +124,7 @@
     <h1 style="font-size:36px;background:linear-gradient(180deg,#8fffc0,#1fa864);-webkit-background-clip:text;background-clip:text">FASE CONCLUÍDA!</h1>
     <p class="stat-line" id="win-score">Pontuação: 0</p>
     <p id="win-detail" style="color:var(--ink2)"></p>
+    <ul class="win-quests" id="win-quests"></ul>
     <div class="btns">
       <button class="menu" data-act="restart">JOGAR DE NOVO</button>
       <button class="menu alt" data-act="menu">MENU</button>
@@ -516,10 +522,20 @@ function hit(){
   else resetPlayer();
 }
 function winGame(){
+  const questBonus = (packagesDone?200:0) + (lightbulbDelivered?200:0) + (cableDelivered?200:0) + (pendriveDelivered?200:0);
   const timeBonus = Math.max(0, 2000-Math.floor(elapsed)*20), lifeBonus = lives*500;
-  score += 1000 + timeBonus + lifeBonus;
+  score += 1000 + timeBonus + lifeBonus + questBonus;
   document.getElementById('win-score').textContent = 'Pontuação: '+score;
-  document.getElementById('win-detail').textContent = `Tempo ${Math.floor(elapsed)}s · Bônus +${timeBonus} · Vidas ${lives} (+${lifeBonus})`;
+  document.getElementById('win-detail').textContent = `Tempo ${Math.floor(elapsed)}s · Bônus +${timeBonus} · Vidas ${lives} (+${lifeBonus})` + (questBonus ? ` · Missões +${questBonus}` : '');
+  const quests = [
+    ['Ana · Recepção — entregas organizadas', packagesDone],
+    ['Zé · Manutenção — lâmpada trocada', lightbulbDelivered],
+    ['Carlos & Maria — servidor consertado', cableDelivered],
+    ['Pedro · Marketing — pendrive encontrado', pendriveDelivered],
+  ];
+  document.getElementById('win-quests').innerHTML = quests.map(([label,done]) =>
+    `<li class="${done?'done':''}"><span class="${done?'ok':'no'}">${done?'✔':'○'}</span>${label}</li>`
+  ).join('');
   setState('win');
 }
 

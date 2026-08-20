@@ -521,10 +521,11 @@ function drawRoomBg(p){
   const scale = ROOM_H/rb.sh;
   const sy = rb.sy, sh = rb.sh;
   const tileW = rb.nw*scale, artTop = p.y-ROOM_H;
-  for (let x=0; x<V.W; x+=tileW){
-    const drawW = Math.min(tileW, V.W-x), srcW = drawW/scale;
-    ctx.drawImage(IMG[rb.key], 0, sy, srcW, sh, x, artTop, drawW, ROOM_H);
-  }
+  // a arte tem elementos únicos (porta, móveis) — desenha só uma vez, senão duplicava a porta
+  // ao repetir o mosaico. O resto da largura (se sobrar) estica a borda direita da imagem,
+  // que é só parede lisa, pra fechar sem criar um segundo elemento estranho.
+  ctx.drawImage(IMG[rb.key], 0, sy, rb.nw, sh, 0, artTop, tileW, ROOM_H);
+  if (tileW < V.W) ctx.drawImage(IMG[rb.key], rb.nw-2, sy, 2, sh, tileW, artTop, V.W-tileW, ROOM_H);
   return true;
 }
 function drawGroundBase(){
@@ -607,14 +608,16 @@ function drawCableIcon(x,y,s){
 function drawMonitorFixed(){
   // cobre o "SEM CONEXÃO" vermelho da tela da Maria com um ícone verde de conectado,
   // depois que o jogador entrega o cabo — mostra visualmente que o problema foi resolvido.
-  const x=503, y=247, w=79, h=37;
+  // retângulo calibrado direto na imagem bg_contabilidade.png (2172x724 -> escala V.W/2172)
+  // pra cobrir a tela toda (ícone wifi + texto "SEM CONEXÃO"), sem deixar pedaço vazando embaixo.
+  const x=500, y=243, w=90, h=56;
   ctx.fillStyle='#060a12'; ctx.fillRect(x,y,w,h);
-  const cx=x+w/2, cy=y+h/2+5;
+  const cx=x+w/2, cy=y+22;
   ctx.strokeStyle='#3ddc84'; ctx.lineWidth=2.2; ctx.lineCap='round';
   ctx.beginPath(); ctx.arc(cx,cy,11,Math.PI*1.15,Math.PI*1.85); ctx.stroke();
   ctx.beginPath(); ctx.arc(cx,cy,6.5,Math.PI*1.15,Math.PI*1.85); ctx.stroke();
   ctx.fillStyle='#3ddc84'; ctx.beginPath(); ctx.arc(cx,cy,2.2,0,Math.PI*2); ctx.fill();
-  txt('CONECTADO', cx, y+11, '#3ddc84', 7, 'center');
+  txt('CONECTADO', cx, y+44, '#3ddc84', 8, 'center');
 }
 function drawGenericNPC(x,y,color,name,s){
   s = s||1;
@@ -670,7 +673,6 @@ function renderRoom(){
     if (port && port.complete && port.naturalWidth){
       const nh = 62*cs, nw = nh*(port.naturalWidth/port.naturalHeight);
       spr(port, rx(room.npcX)-nw/2, groundY-nh+4, nw, nh);
-      txt(room.npcName, rx(room.npcX), groundY-nh-8, '#ffcf5a', 11, 'center');
     } else drawGenericNPC(rx(room.npcX), groundY, room.npcColor||'#6fb8e0', room.npcName, cs);
   }
   // jogador
@@ -793,7 +795,11 @@ function loop(now){
   } else if (state==='room'){
     updateRoomPlayer(dt);
   }
-  if (assetsReady){ if (state==='room') renderRoom(); else render(); }
+  if (assetsReady){
+    // diálogo aberto dentro de uma sala continua mostrando a sala por baixo (senão pisca pro andar principal)
+    const showRoom = state==='room' || (state==='dialogue' && dlgReturnState==='room');
+    if (showRoom) renderRoom(); else render();
+  }
   if (transDir !== 0){
     const a = transDir===1 ? clamp(transT/TRANS_DUR,0,1) : clamp(1-transT/TRANS_DUR,0,1);
     ctx.fillStyle='rgba(3,2,1,'+a+')'; ctx.fillRect(0,0,V.W,V.H);

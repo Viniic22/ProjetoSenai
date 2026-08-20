@@ -627,12 +627,16 @@ function drawMonitorFixed(){
   // pra cobrir a tela toda (ícone wifi + texto "SEM CONEXÃO"), sem deixar pedaço vazando embaixo.
   const x=500, y=243, w=90, h=56;
   ctx.fillStyle='#060a12'; ctx.fillRect(x,y,w,h);
-  const cx=x+w/2, cy=y+22;
-  ctx.strokeStyle='#3ddc84'; ctx.lineWidth=2.2; ctx.lineCap='round';
-  ctx.beginPath(); ctx.arc(cx,cy,11,Math.PI*1.15,Math.PI*1.85); ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx,cy,6.5,Math.PI*1.15,Math.PI*1.85); ctx.stroke();
-  ctx.fillStyle='#3ddc84'; ctx.beginPath(); ctx.arc(cx,cy,2.2,0,Math.PI*2); ctx.fill();
-  txt('CONECTADO', cx, y+44, '#3ddc84', 8, 'center');
+  const cx=x+w/2, cy=y+h*0.4;
+  ctx.save();
+  ctx.shadowColor='#3ddc84'; ctx.shadowBlur=3;
+  ctx.strokeStyle='#3ddc84'; ctx.lineWidth=1.4; ctx.lineCap='round';
+  ctx.beginPath(); ctx.arc(cx,cy,7.5,Math.PI*1.2,Math.PI*1.8); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,4.3,Math.PI*1.2,Math.PI*1.8); ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#3ddc84'; ctx.beginPath(); ctx.arc(cx,cy,1.4,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+  txt('CONECTADO', cx, y+h*0.8, '#3ddc84', 6, 'center');
 }
 function drawGenericNPC(x,y,color,name,s){
   s = s||1;

@@ -216,11 +216,9 @@ const CABLE_PICKUP_DLG    = { name:'VOCÊ', text:'Cabo de rede conseguido! Agora
 const CABLE_DELIVERED_DLG = { name:'MARIA · CONTABILIDADE', text:'O CABO! Perfeito, o sistema já está voltando... você salvou o fechamento de hoje. Obrigada!', portrait:'npcMaria' };
 
 /* ---------- salas internas (porta → cena pequena própria → interação → volta) ---------- */
-// x/promptY recalibrados pra escala "cobre a largura toda" do drawRoomBg (antes eram calibrados
-// pra escala antiga, menor — se a porta não bater certinho no teste, é só ajustar esses números.
 const DOORS = [
-  { floorIdx:2, x:477, promptY:-148, roomKey:'TI_SERVER' },      // T.I. → porta cinza dupla (ao lado do rack) já pintada em bg_ti.png
-  { floorIdx:3, x:500, promptY:-148, roomKey:'FIN_ACCOUNTING' }, // Financeiro → porta "CONTABILIDADE" já pintada em bg_financeiro.png
+  { floorIdx:2, x:231, promptY:-128, roomKey:'TI_SERVER' },      // T.I. → porta cinza dupla (ao lado do rack) já pintada em bg_ti.png
+  { floorIdx:3, x:242, promptY:-112, roomKey:'FIN_ACCOUNTING' }, // Financeiro → porta "CONTABILIDADE" já pintada em bg_financeiro.png
 ];
 const ROOMS = {
   TI_SERVER:      { name:'SALA DE SERVIDORES', width:360, item:'cable', itemX:120, bg:'bgServidores' },
@@ -505,25 +503,28 @@ function drawBackground(){
   ctx.fillStyle='rgba(40,55,80,.20)';
   for(let k=1;k<6;k++) ctx.fillRect(V.W*k/6-1,0,3,V.H);
 }
-// fundos reais (fotos/artes enviadas pelo usuário) por andar. nw/sh = dimensão original
-// (região útil, já pulando barra preta no caso do Marketing). A imagem é ampliada pra cobrir
-// a LARGURA TODA da tela (sem repetir/sem sobra vazia) e o recorte vertical fica ancorado no
-// PISO (mantém o rodapé/porta tocando o chão, corta só o teto/luminárias lá em cima).
+// fundos reais (fotos/artes enviadas pelo usuário) por andar. nw/nh = dimensão original.
+// Escala ÚNICA pras 4 imagens (155/724 — a altura das 3 no formato novo), calibrada pra
+// porta ficar do tamanho de porta de verdade perto do personagem. Imagens mais altas que
+// 724 (Marketing) são recortadas no centro, mantendo a mesma escala — nada é esticado.
 const ROOM_BG = {
   'BANHEIRO':   { key:'bgBanheiro',   nw:2172, sy:0,   sh:724 },
   'T.I.':       { key:'bgTi',         nw:2172, sy:0,   sh:724 },
   'FINANCEIRO': { key:'bgFinanceiro', nw:2172, sy:0,   sh:724 },
-  'MARKETING':  { key:'bgMarketing',  nw:1774, sy:200, sh:395 },
+  'MARKETING':  { key:'bgMarketing',  nw:1774, sy:200, sh:395 }, // essa imagem tem barra preta em cima/embaixo — recorte manual pra pular
   'RECEPÇÃO':   { key:'bgRecepcao',   nw:2120, sy:0,   sh:724 },
   'DIRETORIA':  { key:'bgDiretoria',  nw:2120, sy:0,   sh:724 },
 };
 const ROOM_H = 155; // altura da "sala" = espaço entre andares
 function drawRoomBg(p){
   const rb = ROOM_BG[p.name]; if (!rb) return false;
-  const scale = V.W/rb.nw;                       // escala pra cobrir a largura toda numa unica passada
-  const cropH = Math.min(rb.sh, ROOM_H/scale);    // altura de origem equivalente à faixa do andar
-  const cropY = rb.sy + (rb.sh-cropH);            // ancorado no rodapé (corta só o topo da imagem)
-  ctx.drawImage(IMG[rb.key], 0, cropY, rb.nw, cropH, 0, p.y-ROOM_H, V.W, ROOM_H);
+  const scale = ROOM_H/rb.sh;
+  const sy = rb.sy, sh = rb.sh;
+  const tileW = rb.nw*scale, artTop = p.y-ROOM_H;
+  for (let x=0; x<V.W; x+=tileW){
+    const drawW = Math.min(tileW, V.W-x), srcW = drawW/scale;
+    ctx.drawImage(IMG[rb.key], 0, sy, srcW, sh, x, artTop, drawW, ROOM_H);
+  }
   return true;
 }
 function drawGroundBase(){

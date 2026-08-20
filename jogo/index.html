@@ -508,12 +508,12 @@ function drawBackground(){
 // porta ficar do tamanho de porta de verdade perto do personagem. Imagens mais altas que
 // 724 (Marketing) são recortadas no centro, mantendo a mesma escala — nada é esticado.
 const ROOM_BG = {
-  'BANHEIRO':   { key:'bgBanheiro',   nw:2172, sy:0,   sh:724 },
-  'T.I.':       { key:'bgTi',         nw:2172, sy:0,   sh:724 },
-  'FINANCEIRO': { key:'bgFinanceiro', nw:2172, sy:0,   sh:724 },
-  'MARKETING':  { key:'bgMarketing',  nw:1774, sy:200, sh:395 }, // essa imagem tem barra preta em cima/embaixo — recorte manual pra pular
-  'RECEPÇÃO':   { key:'bgRecepcao',   nw:2120, sy:0,   sh:724 },
-  'DIRETORIA':  { key:'bgDiretoria',  nw:2120, sy:0,   sh:724 },
+  'BANHEIRO':   { key:'bgBanheiro',   nw:2172, sy:0,   sh:724, wall:'#e6d5b8' },
+  'T.I.':       { key:'bgTi',         nw:2172, sy:0,   sh:724, wall:'#c9a876' },
+  'FINANCEIRO': { key:'bgFinanceiro', nw:2172, sy:0,   sh:724, wall:'#1d3f66' },
+  'MARKETING':  { key:'bgMarketing',  nw:1774, sy:200, sh:395, wall:'#2c6d66' }, // essa imagem tem barra preta em cima/embaixo — recorte manual pra pular
+  'RECEPÇÃO':   { key:'bgRecepcao',   nw:2120, sy:0,   sh:724, wall:'#c9ba9c' },
+  'DIRETORIA':  { key:'bgDiretoria',  nw:2120, sy:0,   sh:724, wall:'#b8a888' },
 };
 const ROOM_H = 155; // altura da "sala" = espaço entre andares
 function drawRoomBg(p){
@@ -522,10 +522,10 @@ function drawRoomBg(p){
   const sy = rb.sy, sh = rb.sh;
   const tileW = rb.nw*scale, artTop = p.y-ROOM_H;
   // a arte tem elementos únicos (porta, móveis) — desenha só uma vez, senão duplicava a porta
-  // ao repetir o mosaico. O resto da largura (se sobrar) estica a borda direita da imagem,
-  // que é só parede lisa, pra fechar sem criar um segundo elemento estranho.
+  // ao repetir o mosaico. Se sobrar largura, preenche com a cor sólida da parede (sem tentar
+  // esticar um pedaço da imagem, que já causou uma falha de render em produção).
+  if (tileW < V.W){ ctx.fillStyle = rb.wall; ctx.fillRect(tileW, artTop, V.W-tileW, ROOM_H); }
   ctx.drawImage(IMG[rb.key], 0, sy, rb.nw, sh, 0, artTop, tileW, ROOM_H);
-  if (tileW < V.W) ctx.drawImage(IMG[rb.key], rb.nw-2, sy, 2, sh, tileW, artTop, V.W-tileW, ROOM_H);
   return true;
 }
 function drawGroundBase(){

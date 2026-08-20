@@ -551,14 +551,17 @@ function drawShelves(){
     }
   }
 }
-// funcionários trabalhando + plantas (só nos andares SEM foto real, pra não duplicar a arte)
+// funcionários trabalhando + plantas — nos andares SEM foto real decora o piso inteiro;
+// nos andares COM foto real, só a sobra de largura depois da arte (pra não ficar parede vazia)
 function drawOfficeDecor(){
   const desks=[IMG.desk1,IMG.desk2,IMG.desk3];
   for(let i=0;i<platforms.length-1;i++){
     const p=platforms[i];
-    if (ROOM_BG[p.name]) continue; // a foto de fundo já traz mesas/portas/etc.
+    const rb = ROOM_BG[p.name];
+    const startX = rb ? rb.nw*(ROOM_H/rb.sh)+20 : p.x1+50;
+    if (startX >= p.x2-60) continue; // sem sobra de largura pra decorar
     let n=0;
-    for(let x=p.x1+50; x<p.x2-60; x+=160){
+    for(let x=startX; x<p.x2-60; x+=160){
       let skip=false; for(const L of ladders) if(Math.abs(L.x-(x+22))<62) skip=true;
       if(skip){ n++; continue; }
       const kind=(x+i*7)%11;
